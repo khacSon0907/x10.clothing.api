@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import x10.Clothing.api.common.domain.enums.AuthProvider;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
@@ -25,4 +26,5 @@ public class UserEntity {
     private boolean emailVerified;
     private LocalDateTime verifiedAt;
     private String avatarUrl;
+    private AuthProvider providerType;
 }

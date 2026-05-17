@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import x10.Clothing.api.common.domain.enums.AuthProvider;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
@@ -29,4 +30,5 @@ public class UserDocument {
     private boolean emailVerified;
     private LocalDateTime verifiedAt;
     private String avatarUrl;
+    private AuthProvider providerType;
 }
