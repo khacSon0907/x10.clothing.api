@@ -81,10 +81,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // register chỉ ADMIN
-
-                        // admin API
-                        .requestMatchers("/api/customers/**").hasRole("ADMIN")
-
                         // user API cần login
                         .requestMatchers("/api/users/**").authenticated()
 

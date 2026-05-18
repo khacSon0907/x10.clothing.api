@@ -1,6 +1,7 @@
 package x10.Clothing.api.config.jwt;
 
 
+import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 
 public interface IJwtService {
 
