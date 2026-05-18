@@ -20,6 +20,7 @@ public class UserEntity {
     private String username;
     private String email;
     private String passwordHash;
+    private String phoneNumber;
     private UserStatus status;
     private Instant createdAt;
     private Instant updatedAt;

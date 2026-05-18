@@ -1,15 +1,15 @@
 package x10.Clothing.api.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/test")
-public class TestController {
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
 
-        @RequestMapping("/hello")
-        public String hello() {
-            return "Hello, World!";
-        }
+    private final
+
 }

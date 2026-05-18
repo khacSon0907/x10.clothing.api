@@ -23,6 +23,7 @@ public class UserDocument {
     private String id;
     private String username;
     private String email;
+    private String phoneNumber;
     private String passwordHash;
     private UserStatus status;
     private Instant createdAt;

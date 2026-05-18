@@ -7,6 +7,8 @@ import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.entities.UserEntity;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
 import x10.Clothing.api.common.domain.enums.UserStatus;
+import x10.Clothing.api.share.exception.BusinessException;
+import x10.Clothing.api.share.exception.user.UserError;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -33,16 +35,18 @@ public class CreateUserImpl implements ICreateUserUc {
             if (user.getProviderType() == AuthProvider.GUEST) {
 
                 user.setUsername(req.getUsername());
+
                 user.setPasswordHash(
                         passwordEncoder.encode(req.getPassword())
                 );
+
                 user.setProviderType(AuthProvider.LOCAL);
                 user.setUpdatedAt(Instant.now());
 
                 return userRepository.save(user);
             }
 
-            throw new RuntimeException("Email already exists");
+            throw new BusinessException(UserError.EMAIL_EXISTS);
         }
 
         // User mới
