@@ -1,7 +1,5 @@
 package x10.Clothing.api.config.redis;
 
-// RedisServiceImpl.java
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,91 +13,63 @@ import java.time.Duration;
 public class RedisServiceImpl implements IRedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private static final String LOGIN_ATTEMPT_PREFIX = "login_attempt:";
+
+    private static final String REGISTER_OTP_PREFIX = "register_otp:";
 
     @Override
-    public void saveRefreshToken(String userId, String refreshToken, Duration expiration) {
+    public void saveRegisterOtp(
+            String email,
+            String otp,
+            Duration expiration
+    ) {
         try {
-            redisTemplate.opsForValue().set("refresh:" + userId, refreshToken, expiration);
+            String key = REGISTER_OTP_PREFIX + email;
+
+            redisTemplate.opsForValue().set(
+                    key,
+                    otp,
+                    expiration
+            );
+
+            log.info("OTP saved to Redis: {}", key);
+
         } catch (Exception e) {
-            log.error("Error saving refresh token for user: {}", userId, e);
+            log.error(
+                    "Error saving register OTP for email: {}",
+                    email,
+                    e
+            );
         }
     }
 
     @Override
-    public String getRefreshToken(String userId) {
+    public String getRegisterOtp(String email) {
         try {
-            return redisTemplate.opsForValue().get("refresh:" + userId);
+            return redisTemplate.opsForValue().get(
+                    REGISTER_OTP_PREFIX + email
+            );
         } catch (Exception e) {
-            log.error("Error getting refresh token for user: {}", userId, e);
+            log.error(
+                    "Error getting register OTP for email: {}",
+                    email,
+                    e
+            );
             return null;
         }
     }
 
     @Override
-    public void deleteRefreshToken(String userId) {
+    public void deleteRegisterOtp(String email) {
         try {
-            redisTemplate.delete("refresh:" + userId);
+            redisTemplate.delete(
+                    REGISTER_OTP_PREFIX + email
+            );
         } catch (Exception e) {
-            log.error("Error deleting refresh token for user: {}", userId, e);
-        }
-    }
-
-    @Override
-    public void blacklistToken(String token, Duration expiration) {
-        try {
-            redisTemplate.opsForValue().set("blacklist:" + token, "1", expiration);
-        } catch (Exception e) {
-            log.error("Error blacklisting token", e);
-        }
-    }
-
-    @Override
-    public Boolean isTokenBlacklisted(String token) {
-        try {
-            return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token));
-        } catch (Exception e) {
-            log.error("Error checking blacklisted token", e);
-            return false;
-        }
-    }
-
-    @Override
-    public Integer getLoginAttempts(String username) {
-        try {
-            String value = redisTemplate.opsForValue().get(LOGIN_ATTEMPT_PREFIX + username);
-            return value != null ? Integer.parseInt(value) : 0;
-        } catch (Exception e) {
-            log.error("Error getting login attempts for user: {}", username, e);
-            return 0;
-        }
-    }
-
-    @Override
-    public Long incrementLoginAttempts(String username) {
-        try {
-            return redisTemplate.opsForValue().increment(LOGIN_ATTEMPT_PREFIX + username);
-        } catch (Exception e) {
-            log.error("Error incrementing login attempts for user: {}", username, e);
-            return 0L;
-        }
-    }
-
-    @Override
-    public void resetLoginAttempts(String username) {
-        try {
-            redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
-        } catch (Exception e) {
-            log.error("Error resetting login attempts for user: {}", username, e);
-        }
-    }
-
-    @Override
-    public void setLoginAttemptsExpire(String username, Duration duration) {
-        try {
-            redisTemplate.expire(LOGIN_ATTEMPT_PREFIX + username, duration);
-        } catch (Exception e) {
-            log.error("Error setting login attempts expiration for user: {}", username, e);
+            log.error(
+                    "Error deleting register OTP for email: {}",
+                    email,
+                    e
+            );
         }
     }
 }

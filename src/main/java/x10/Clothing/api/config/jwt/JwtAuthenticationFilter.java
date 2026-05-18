@@ -45,12 +45,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
-            // Kiểm tra token có bị blacklist không
-            if (redisService.isTokenBlacklisted(token)) {
-                log.warn("Attempt to use blacklisted token");
-                filterChain.doFilter(request, response);
-                return;
-            }
 
             // Validate access token và lấy TokenPayload
             TokenPayload tokenPayload = jwtService.validateAccessToken(token);
