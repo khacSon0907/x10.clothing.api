@@ -13,4 +13,12 @@ public interface IRedisService {
     String getRegisterOtp(String email);
 
     void deleteRegisterOtp(String email);
+
+    long incrementFailedLogin(String email);
+
+    void resetFailedLogin(String email);
+
+    void lockUserLogin(String email, Duration duration);
+
+    boolean isLoginLocked(String email);
 }

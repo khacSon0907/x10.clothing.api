@@ -72,4 +72,54 @@ public class RedisServiceImpl implements IRedisService {
             );
         }
     }
+
+    private static final String LOGIN_FAILED_PREFIX = "login_failed:";
+    private static final String LOGIN_LOCKED_PREFIX = "login_locked:";
+
+    @Override
+    public long incrementFailedLogin(String email) {
+        try {
+            String key = LOGIN_FAILED_PREFIX + email;
+            Long count = redisTemplate.opsForValue().increment(key);
+            if (count != null && count == 1) {
+                // Set expiration for 1 hour so the counter resets eventually
+                redisTemplate.expire(key, Duration.ofHours(1));
+            }
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            log.error("Error incrementing failed login for email: {}", email, e);
+            return 0;
+        }
+    }
+
+    @Override
+    public void resetFailedLogin(String email) {
+        try {
+            redisTemplate.delete(LOGIN_FAILED_PREFIX + email);
+        } catch (Exception e) {
+            log.error("Error resetting failed login for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public void lockUserLogin(String email, Duration duration) {
+        try {
+            String key = LOGIN_LOCKED_PREFIX + email;
+            redisTemplate.opsForValue().set(key, "locked", duration);
+            log.info("User {} locked for {}", email, duration);
+        } catch (Exception e) {
+            log.error("Error locking user login for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public boolean isLoginLocked(String email) {
+        try {
+            String key = LOGIN_LOCKED_PREFIX + email;
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        } catch (Exception e) {
+            log.error("Error checking login locked status for email: {}", email, e);
+            return false;
+        }
+    }
 }
