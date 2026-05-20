@@ -1,45 +1,47 @@
 # ==============================================================================
-# STAGE 1: Build the application using Maven
+# STAGE 1: Build Spring Boot application
 # ==============================================================================
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+
 WORKDIR /app
 
-# Copy the pom.xml to download dependencies first (improves build caching)
+# Copy pom.xml trước để cache dependency
 COPY pom.xml .
 
-# Download dependencies offline to speed up subsequent builds
+# Download dependency
 RUN mvn dependency:go-offline -B
 
-# Copy the source code
+# Copy source code
 COPY src ./src
 
-# Package the application (skipping unit tests for deployment build speed)
+# Build jar
 RUN mvn clean package -DskipTests
 
+
 # ==============================================================================
-# STAGE 2: Create the production runtime image
+# STAGE 2: Runtime image
 # ==============================================================================
 FROM eclipse-temurin:21-jre-alpine
+
 WORKDIR /app
 
-# Add a non-privileged system user for security best practices
+# Create non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 
-# Copy the packaged jar from the builder stage
-COPY --from=builder /app/target/clothing-store-api-0.0.1-SNAPSHOT.jar app.jar
+# Copy jar từ builder
+COPY --from=builder /app/target/*.jar app.jar
 
-# Ensure the app jar is owned by the spring user
+# Set ownership
 RUN chown -R spring:spring /app
 
-# Switch to the non-root user
+# Use non-root user
 USER spring:spring
 
-# Expose the default application port (8080)
-EXPOSE 8080
+# Render sẽ tự inject PORT
+ENV SPRING_PROFILES_ACTIVE=prod
 
-# Environment variables defaults (can be overridden during runtime)
-ENV PORT=8080 \
-    SPRING_PROFILES_ACTIVE=prod
+# Expose render port
+EXPOSE 10000
 
-# Command to execute the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Start app
+ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx512m -Dserver.port=${PORT:-10000} -jar app.jar"]
