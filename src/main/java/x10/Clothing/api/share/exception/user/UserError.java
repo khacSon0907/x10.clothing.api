@@ -46,6 +46,12 @@ public enum UserError implements ErrorDescriptor {
             429,
             "AUTH.LOGIN_LOCKED",
             "Tài khoản đã bị khóa tạm thời do nhập sai mật khẩu quá 5 lần. Vui lòng thử lại sau 5 phút."
+    ),
+    INVALID_REFRESH_TOKEN(
+            "BUSINESS",
+            401,
+            "AUTH.INVALID_REFRESH_TOKEN",
+            "Refresh token không hợp lệ hoặc đã hết hạn"
     );
 
 

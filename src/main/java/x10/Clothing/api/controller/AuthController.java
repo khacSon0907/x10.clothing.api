@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import x10.Clothing.api.service.authService.loginUc.LoginReq;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
+import x10.Clothing.api.service.authService.refreshTokenUc.RefreshTokenReq;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -79,6 +80,42 @@ public class AuthController {
                 "AUTH.VERIFY_OTP_SUCCESS",
                 "Xác thực email thành công",
                 null,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Void> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        coreAuthService.logout(request, response);
+        return ApiResponse.success(
+                200,
+                "AUTH.LOGOUT_SUCCESS",
+                "Đăng xuất thành công",
+                null,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<LoginResponse> refreshToken(
+            @RequestBody(required = false) RefreshTokenReq req,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String bodyToken = (req != null) ? req.getRefreshToken() : null;
+        LoginResponse loginResponse = coreAuthService.refreshToken(bodyToken, request, response);
+        return ApiResponse.success(
+                200,
+                "AUTH.REFRESH_SUCCESS",
+                "Làm mới token thành công",
+                loginResponse,
                 request.getRequestURI(),
                 null
         );

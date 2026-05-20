@@ -122,4 +122,30 @@ public class RedisServiceImpl implements IRedisService {
             return false;
         }
     }
+
+    private static final String BLACKLIST_PREFIX = "token_blacklist:";
+
+    @Override
+    public void addToBlacklist(String token, long expirationInMs) {
+        try {
+            if (expirationInMs > 0) {
+                String key = BLACKLIST_PREFIX + token;
+                redisTemplate.opsForValue().set(key, "blacklisted", Duration.ofMillis(expirationInMs));
+                log.info("Token added to blacklist with expiration: {} ms", expirationInMs);
+            }
+        } catch (Exception e) {
+            log.error("Error adding token to blacklist", e);
+        }
+    }
+
+    @Override
+    public boolean isTokenBlacklisted(String token) {
+        try {
+            String key = BLACKLIST_PREFIX + token;
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        } catch (Exception e) {
+            log.error("Error checking token in blacklist", e);
+            return false;
+        }
+    }
 }

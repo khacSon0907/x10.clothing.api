@@ -21,4 +21,8 @@ public interface IRedisService {
     void lockUserLogin(String email, Duration duration);
 
     boolean isLoginLocked(String email);
+
+    void addToBlacklist(String token, long expirationInMs);
+
+    boolean isTokenBlacklisted(String token);
 }
