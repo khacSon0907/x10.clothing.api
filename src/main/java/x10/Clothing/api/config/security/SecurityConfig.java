@@ -42,7 +42,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // FE của bạn (Vite)
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("https://polo-man.vercel.app"));
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
