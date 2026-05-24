@@ -11,9 +11,10 @@ public class CookieUtil {
     public static void addCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(false) // Set to true in production with HTTPS
+                .secure(true) // ✅ FIXED: true for HTTPS production
                 .path("/")
                 .maxAge(maxAgeSeconds)
+                .sameSite("None") // ✅ ADDED: Allow cross-origin cookies
                 .build();
         
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -34,9 +35,10 @@ public class CookieUtil {
     public static void deleteCookie(HttpServletResponse response, String name) {
         ResponseCookie cookie = ResponseCookie.from(name, "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true) // ✅ FIXED: true for HTTPS production
                 .path("/")
                 .maxAge(0) // Expire immediately
+                .sameSite("None") // ✅ ADDED: Allow cross-origin cookies
                 .build();
         
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

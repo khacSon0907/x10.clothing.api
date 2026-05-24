@@ -47,7 +47,13 @@ public class SecurityConfig {
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Set-Cookie"
+        ));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
