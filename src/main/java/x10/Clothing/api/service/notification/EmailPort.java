@@ -7,4 +7,10 @@ public interface EmailPort {
             String username,
             String otp
     );
+
+    void sendForgotPasswordOtpEmail(
+            String to,
+            String username,
+            String otp
+    );
 }

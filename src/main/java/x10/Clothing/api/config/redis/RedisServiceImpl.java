@@ -73,6 +73,91 @@ public class RedisServiceImpl implements IRedisService {
         }
     }
 
+    private static final String FORGOT_PASSWORD_OTP_PREFIX = "forgot_password_otp:";
+
+    @Override
+    public void saveForgotPasswordOtp(String email, String otp, Duration expiration) {
+        try {
+            String key = FORGOT_PASSWORD_OTP_PREFIX + email;
+            redisTemplate.opsForValue().set(key, otp, expiration);
+            log.info("Forgot Password OTP saved to Redis: {}", key);
+        } catch (Exception e) {
+            log.error("Error saving forgot password OTP for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public String getForgotPasswordOtp(String email) {
+        try {
+            return redisTemplate.opsForValue().get(FORGOT_PASSWORD_OTP_PREFIX + email);
+        } catch (Exception e) {
+            log.error("Error getting forgot password OTP for email: {}", email, e);
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteForgotPasswordOtp(String email) {
+        try {
+            redisTemplate.delete(FORGOT_PASSWORD_OTP_PREFIX + email);
+        } catch (Exception e) {
+            log.error("Error deleting forgot password OTP for email: {}", email, e);
+        }
+    }
+
+    private static final String FORGOT_PASSWORD_COOLDOWN_PREFIX = "forgot_password_cooldown:";
+    private static final String RESET_PASSWORD_TOKEN_PREFIX = "reset_password_token:";
+
+    @Override
+    public void saveForgotPasswordCooldown(String email, Duration duration) {
+        try {
+            String key = FORGOT_PASSWORD_COOLDOWN_PREFIX + email;
+            redisTemplate.opsForValue().set(key, "cooldown", duration);
+        } catch (Exception e) {
+            log.error("Error saving forgot password cooldown for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public boolean isForgotPasswordCooldown(String email) {
+        try {
+            String key = FORGOT_PASSWORD_COOLDOWN_PREFIX + email;
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        } catch (Exception e) {
+            log.error("Error checking forgot password cooldown for email: {}", email, e);
+            return false;
+        }
+    }
+
+    @Override
+    public void saveResetPasswordToken(String email, String token, Duration duration) {
+        try {
+            String key = RESET_PASSWORD_TOKEN_PREFIX + email;
+            redisTemplate.opsForValue().set(key, token, duration);
+        } catch (Exception e) {
+            log.error("Error saving reset password token for email: {}", email, e);
+        }
+    }
+
+    @Override
+    public String getResetPasswordToken(String email) {
+        try {
+            return redisTemplate.opsForValue().get(RESET_PASSWORD_TOKEN_PREFIX + email);
+        } catch (Exception e) {
+            log.error("Error getting reset password token for email: {}", email, e);
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteResetPasswordToken(String email) {
+        try {
+            redisTemplate.delete(RESET_PASSWORD_TOKEN_PREFIX + email);
+        } catch (Exception e) {
+            log.error("Error deleting reset password token for email: {}", email, e);
+        }
+    }
+
     private static final String LOGIN_FAILED_PREFIX = "login_failed:";
     private static final String LOGIN_LOCKED_PREFIX = "login_locked:";
 

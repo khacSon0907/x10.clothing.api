@@ -12,6 +12,10 @@ import x10.Clothing.api.service.authService.loginUc.LoginReq;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
 import x10.Clothing.api.service.authService.logoutUc.ILogoutUc;
 import x10.Clothing.api.service.authService.refreshTokenUc.IRefreshTokenUc;
+import x10.Clothing.api.service.authService.forgotPasswordUc.IForgotPasswordUc;
+import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.IVerifyForgotPasswordOtpUc;
+import x10.Clothing.api.service.authService.resetPasswordUc.IResetPasswordUc;
+import x10.Clothing.api.service.authService.changePasswordUc.IChangePasswordUc;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.util.CookieUtil;
 import x10.Clothing.api.share.exception.BusinessException;
@@ -29,6 +33,10 @@ public class CoreAuthServiceImpl implements ICoreAuthService {
     private final ILoginUc loginUc;
     private final ILogoutUc logoutUc;
     private final IRefreshTokenUc refreshTokenUc;
+    private final IForgotPasswordUc forgotPasswordUc;
+    private final IVerifyForgotPasswordOtpUc verifyForgotPasswordOtpUc;
+    private final IResetPasswordUc resetPasswordUc;
+    private final IChangePasswordUc changePasswordUc;
     private final JwtProperties jwtProperties;
 
     @Override
@@ -76,5 +84,27 @@ public class CoreAuthServiceImpl implements ICoreAuthService {
         CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), maxAgeSeconds);
 
         return loginResponse;
+    }
+
+    @Override
+    public void forgotPassword(x10.Clothing.api.service.authService.forgotPasswordUc.ForgotPasswordReq req) {
+        forgotPasswordUc.forgotPassword(req);
+    }
+
+    @Override
+    public x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForgotPasswordOtpResponse verifyForgotPasswordOtp(
+            x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForgotPasswordOtpReq req
+    ) {
+        return verifyForgotPasswordOtpUc.verifyOtp(req);
+    }
+
+    @Override
+    public void resetPassword(x10.Clothing.api.service.authService.resetPasswordUc.ResetPasswordReq req) {
+        resetPasswordUc.resetPassword(req);
+    }
+
+    @Override
+    public void changePassword(String userId, x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq req) {
+        changePasswordUc.changePassword(userId, req);
     }
 }

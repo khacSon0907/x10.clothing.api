@@ -14,6 +14,26 @@ public interface IRedisService {
 
     void deleteRegisterOtp(String email);
 
+    void saveForgotPasswordOtp(
+            String email,
+            String otp,
+            Duration expiration
+    );
+
+    String getForgotPasswordOtp(String email);
+
+    void deleteForgotPasswordOtp(String email);
+
+    void saveForgotPasswordCooldown(String email, Duration duration);
+
+    boolean isForgotPasswordCooldown(String email);
+
+    void saveResetPasswordToken(String email, String token, Duration duration);
+
+    String getResetPasswordToken(String email);
+
+    void deleteResetPasswordToken(String email);
+
     long incrementFailedLogin(String email);
 
     void resetFailedLogin(String email);

@@ -82,11 +82,20 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
+                        // Public auth endpoints (login, register, forgot-password, etc.)
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/verify-otp",
+                                "/api/auth/forgot-password",
+                                "/api/auth/verify-forgot-password-otp",
+                                "/api/auth/reset-password",
+                                "/api/auth/refresh"
+                        ).permitAll()
 
-                        // login cho tất cả
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Protected auth endpoints (change-password, logout, etc.)
+                        .requestMatchers("/api/auth/**").authenticated()
 
-                        // register chỉ ADMIN
                         // user API cần login
                         .requestMatchers("/api/users/**").authenticated()
 

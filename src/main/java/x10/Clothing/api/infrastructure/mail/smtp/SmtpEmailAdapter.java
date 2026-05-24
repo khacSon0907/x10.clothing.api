@@ -34,4 +34,22 @@ public class SmtpEmailAdapter implements EmailPort {
 
         javaMailSender.send(message);
     }
+
+    @Override
+    public void sendForgotPasswordOtpEmail(
+            String to,
+            String username,
+            String otp
+    ) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom(mailFrom);
+        message.setTo(to);
+        message.setSubject("Your X10 Clothing password reset code");
+        message.setText(
+                x10.Clothing.api.infrastructure.mail.template.ForgotPasswordEmailTemplate.build(username, otp)
+        );
+
+        javaMailSender.send(message);
+    }
 }

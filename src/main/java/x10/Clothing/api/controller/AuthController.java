@@ -4,9 +4,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import x10.Clothing.api.service.authService.ICoreAuthService;
+import x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq;
+import x10.Clothing.api.service.authService.forgotPasswordUc.ForgotPasswordReq;
 import x10.Clothing.api.service.authService.registerUc.RegisterResponse;
+import x10.Clothing.api.service.authService.resetPasswordUc.ResetPasswordReq;
+import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForgotPasswordOtpReq;
+import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForgotPasswordOtpResponse;
 import x10.Clothing.api.service.authService.verifyOtpUc.VerifyOtpReq;
 import x10.Clothing.api.service.userService.createUserUc.CreateUserReq;
 import x10.Clothing.api.share.response.ApiResponse;
@@ -116,6 +122,77 @@ public class AuthController {
                 "AUTH.REFRESH_SUCCESS",
                 "Làm mới token thành công",
                 loginResponse,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Void> forgotPassword(
+            @Valid @RequestBody  ForgotPasswordReq req,
+            HttpServletRequest request
+    ) {
+        coreAuthService.forgotPassword(req);
+        return ApiResponse.success(
+                200,
+                "AUTH.FORGOT_PASSWORD_SUCCESS",
+                "Mã xác nhận quên mật khẩu đã được gửi đến email của bạn",
+                null,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/verify-forgot-password-otp")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<VerifyForgotPasswordOtpResponse> verifyForgotPasswordOtp(
+            @Valid @RequestBody VerifyForgotPasswordOtpReq req,
+            HttpServletRequest request
+    ) {
+            VerifyForgotPasswordOtpResponse response = coreAuthService.verifyForgotPasswordOtp(req);
+        return ApiResponse.success(
+                200,
+                "AUTH.VERIFY_FORGOT_PASSWORD_OTP_SUCCESS",
+                "Xác thực mã OTP thành công",
+                response,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Void> resetPassword(
+            @Valid @RequestBody ResetPasswordReq req,
+            HttpServletRequest request
+    ) {
+        coreAuthService.resetPassword(req);
+        return ApiResponse.success(
+                200,
+                "AUTH.RESET_PASSWORD_SUCCESS",
+                "Đặt lại mật khẩu thành công",
+                null,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/change-password")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Void> changePassword(
+            @Valid @RequestBody ChangePasswordReq req,
+            HttpServletRequest request
+    ) {
+        // Extract userId from JWT token (stored in SecurityContext by JwtAuthenticationFilter)
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        coreAuthService.changePassword(userId, req);
+        return ApiResponse.success(
+                200,
+                "AUTH.CHANGE_PASSWORD_SUCCESS",
+                "Đổi mật khẩu thành công",
+                null,
                 request.getRequestURI(),
                 null
         );

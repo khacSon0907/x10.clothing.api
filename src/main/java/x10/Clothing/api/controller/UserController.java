@@ -1,0 +1,40 @@
+package x10.Clothing.api.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import x10.Clothing.api.service.userService.ICoreUserService;
+import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;
+import x10.Clothing.api.share.response.ApiResponse;
+
+@RestController
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final ICoreUserService coreUserService;
+
+    @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<GetMeResponse> getMe(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getPrincipal().toString();
+
+        GetMeResponse response = coreUserService.getMe(userId);
+
+        return ApiResponse.success(
+                200,
+                "USER.GET_ME_SUCCESS",
+                "Lấy thông tin người dùng thành công",
+                response,
+                request.getRequestURI(),
+                null
+        );
+    }
+}

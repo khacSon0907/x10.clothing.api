@@ -52,6 +52,36 @@ public enum UserError implements ErrorDescriptor {
             401,
             "AUTH.INVALID_REFRESH_TOKEN",
             "Refresh token không hợp lệ hoặc đã hết hạn"
+    ),
+    RATE_LIMIT_EXCEEDED(
+            "BUSINESS",
+            429,
+            "AUTH.RATE_LIMIT_EXCEEDED",
+            "Bạn thao tác quá nhanh, vui lòng thử lại sau"
+    ),
+    INVALID_RESET_TOKEN(
+            "BUSINESS",
+            400,
+            "AUTH.INVALID_RESET_TOKEN",
+            "Mã xác nhận không hợp lệ hoặc đã hết hạn"
+    ),
+    WRONG_PASSWORD(
+            "BUSINESS",
+            400,
+            "USER.WRONG_PASSWORD",
+            "Mật khẩu hiện tại không chính xác"
+    ),
+    PASSWORD_MISMATCH(
+            "BUSINESS",
+            400,
+            "USER.PASSWORD_MISMATCH",
+            "Xác nhận mật khẩu không khớp"
+    ),
+    SAME_PASSWORD(
+            "BUSINESS",
+            400,
+            "USER.SAME_PASSWORD",
+            "Mật khẩu mới không được trùng với mật khẩu hiện tại"
     );
 
 
