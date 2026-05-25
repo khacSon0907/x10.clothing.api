@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.jwt.IJwtService;
 import x10.Clothing.api.config.redis.IRedisService;
@@ -14,6 +15,8 @@ import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
 import java.time.Duration;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,60 +33,80 @@ public class LoginUcImpl implements ILoginUc {
 
     @Override
     public LoginResponse login(LoginReq req) {
+
         String email = req.getEmail();
 
-        // 1. Check if user is locked due to too many failed attempts
+        // 1. Check login lock
         if (redisService.isLoginLocked(email)) {
             throw new BusinessException(UserError.LOGIN_LOCKED);
         }
 
-        // 2. Find user by email
+        // 2. Find user
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(UserError.USER_NOT_FOUND));
 
         // 3. Verify password
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+
             long failedCount = redisService.incrementFailedLogin(email);
+
             log.warn("Failed login attempt {} for user {}", failedCount, email);
 
             if (failedCount >= MAX_FAILED_ATTEMPTS) {
+
                 redisService.lockUserLogin(email, LOCK_DURATION);
+
                 redisService.resetFailedLogin(email);
+
                 throw new BusinessException(UserError.LOGIN_LOCKED);
             }
 
             throw new BusinessException(UserError.INVALID_CREDENTIALS);
         }
 
-        // Password is correct, reset failed attempts
+        // Reset failed login
         redisService.resetFailedLogin(email);
 
-        // 4. Check if email is verified
+        // 4. Check email verified
         if (!user.isEmailVerified()) {
             throw new BusinessException(UserError.EMAIL_NOT_VERIFIED);
         }
 
-        // 5. Check if user is active
+        // 5. Check user status
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BusinessException(UserError.USER_NOT_ACTIVE);
         }
 
-        // 6. Generate Tokens
+        // 6. Build role string
+        Set<UserRole> roles = user.getRoles();
+
+        if (roles == null || roles.isEmpty()) {
+            roles = Set.of(UserRole.USER);
+        }
+
+        String roleStr = roles.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+
+        // 7. Build token payload
         TokenPayload payload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role("USER") // Default role, modify as needed based on your entity
+                .role(roleStr)
                 .build();
 
+        // 8. Generate tokens
         String accessToken = jwtService.generateAccessToken(payload);
+
         String refreshToken = jwtService.generateRefreshToken(payload);
 
-        // 7. Return LoginResponse
+        // 9. Return response
         return LoginResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .roles(roles)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

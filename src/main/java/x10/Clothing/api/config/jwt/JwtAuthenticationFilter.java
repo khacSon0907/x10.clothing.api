@@ -17,7 +17,9 @@ import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.config.redis.IRedisService;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -60,12 +62,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (tokenPayload.getUsername() != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Tạo Authentication object với role từ token
+                // Build authorities from role claim. Support comma-separated roles (e.g. "ADMIN,USER").
+                List<SimpleGrantedAuthority> authorities = List.of();
+                if (tokenPayload.getRole() != null && !tokenPayload.getRole().trim().isEmpty()) {
+                    authorities = Arrays.stream(tokenPayload.getRole().split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+                }
+
+                // Tạo Authentication object với roles từ token
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 tokenPayload.getUserId(),
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + tokenPayload.getRole()))
+                                authorities
                         );
 
 

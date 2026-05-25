@@ -6,10 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
+import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -28,4 +30,7 @@ public class UserEntity {
     private LocalDateTime verifiedAt;
     private String avatarUrl;
     private AuthProvider providerType;
+
+    // ROLE
+    private Set<UserRole> roles;
 }

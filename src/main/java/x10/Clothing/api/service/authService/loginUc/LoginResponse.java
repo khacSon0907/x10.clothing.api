@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import x10.Clothing.api.common.domain.enums.UserRole;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,6 +17,7 @@ public class LoginResponse {
     private String id;
     private String username;
     private String email;
+    private Set<UserRole> roles;
     private String accessToken;
 
     @JsonIgnore

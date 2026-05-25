@@ -24,6 +24,10 @@ public class UserMapper {
                 .verifiedAt(document.getVerifiedAt())
                 .avatarUrl(document.getAvatarUrl())
                 .providerType(document.getProviderType())
+
+                // ROLE
+                .roles(document.getRoles())
+
                 .build();
     }
 
@@ -46,6 +50,10 @@ public class UserMapper {
                 .verifiedAt(entity.getVerifiedAt())
                 .avatarUrl(entity.getAvatarUrl())
                 .providerType(entity.getProviderType())
+
+                // ROLE
+                .roles(entity.getRoles())
+
                 .build();
     }
 }

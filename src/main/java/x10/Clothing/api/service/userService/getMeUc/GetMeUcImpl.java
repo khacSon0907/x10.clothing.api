@@ -30,6 +30,7 @@ public class GetMeUcImpl implements IGetMeUc {
                 .verifiedAt(user.getVerifiedAt())
                 .avatarUrl(user.getAvatarUrl())
                 .providerType(user.getProviderType())
+                .roles(user.getRoles())
                 .build();
     }
 }

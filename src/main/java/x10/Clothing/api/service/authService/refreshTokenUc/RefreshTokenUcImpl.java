@@ -13,6 +13,8 @@ import x10.Clothing.api.service.authService.loginUc.LoginResponse;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -62,11 +64,19 @@ public class RefreshTokenUcImpl implements IRefreshTokenUc {
         }
 
         // 7. Tạo Access Token mới và Refresh Token mới (Xoay vòng token)
+        // Prefer roles from user entity (more authoritative). If not available, use role from token payload, else default to USER.
+        String roleStr = "USER";
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            roleStr = user.getRoles().stream().map(Enum::name).collect(Collectors.joining(","));
+        } else if (payload.getRole() != null && !payload.getRole().trim().isEmpty()) {
+            roleStr = payload.getRole();
+        }
+
         TokenPayload newPayload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(payload.getRole() != null ? payload.getRole() : "USER")
+                .role(roleStr)
                 .build();
 
         String newAccessToken = jwtService.generateAccessToken(newPayload);

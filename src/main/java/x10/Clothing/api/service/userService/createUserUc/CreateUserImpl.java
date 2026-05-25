@@ -13,7 +13,8 @@ import x10.Clothing.api.service.notification.OtpGenerator;
 import x10.Clothing.api.service.notification.event.RegisterOtpEvent;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
-
+import x10.Clothing.api.common.domain.enums.UserRole;
+import java.util.Set;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -70,6 +71,7 @@ public class CreateUserImpl implements ICreateUserUc {
                                 .createdAt(Instant.now())
                                 .updatedAt(Instant.now())
                                 .emailVerified(false)
+                                .roles(Set.of(UserRole.USER))
                                 .build();
 
                 UserEntity savedUser = userRepository.save(newUser);
