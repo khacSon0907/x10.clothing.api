@@ -4,6 +4,7 @@ package x10.Clothing.api.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -82,7 +83,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // Public auth endpoints (login, register, forgot-password, etc.)
+                        // Public auth endpoints
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
@@ -93,7 +94,15 @@ public class SecurityConfig {
                                 "/api/auth/refresh"
                         ).permitAll()
 
-                        // Protected auth endpoints (change-password, logout, etc.)
+                        // CATEGORY - chỉ ADMIN được tạo
+                        .requestMatchers(HttpMethod.POST, "/api/categories")
+                        .hasRole("ADMIN")
+
+                        // CATEGORY - ai cũng xem được
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**")
+                        .permitAll()
+
+                        // Protected auth endpoints
                         .requestMatchers("/api/auth/**").authenticated()
 
                         // user API cần login

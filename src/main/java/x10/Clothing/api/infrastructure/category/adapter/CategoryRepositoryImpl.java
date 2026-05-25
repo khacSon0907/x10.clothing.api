@@ -1,0 +1,44 @@
+package x10.Clothing.api.infrastructure.category.adapter;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import x10.Clothing.api.Repository.ICategoryRepository;
+import x10.Clothing.api.common.domain.entities.CategoryEntity;
+import x10.Clothing.api.infrastructure.category.db.mongodb.CategoryDocument;
+import x10.Clothing.api.infrastructure.category.db.mongodb.CategoryMongoRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Repository
+@RequiredArgsConstructor
+public class CategoryRepositoryImpl implements ICategoryRepository {
+
+    private final CategoryMongoRepository categoryMongoRepository;
+
+    @Override
+    public CategoryEntity save(CategoryEntity category) {
+        CategoryDocument doc = CategoryMapper.toDocument(category);
+        CategoryDocument saved = categoryMongoRepository.save(doc);
+        return CategoryMapper.toEntity(saved);
+    }
+
+    @Override
+    public Optional<CategoryEntity> findBySlug(String slug) {
+        return categoryMongoRepository.findBySlug(slug).map(CategoryMapper::toEntity);
+    }
+
+    @Override
+    public Optional<CategoryEntity> findByName(String name) {
+        return categoryMongoRepository.findByName(name).map(CategoryMapper::toEntity);
+    }
+
+    @Override
+    public List<CategoryEntity> findAll() {
+        return categoryMongoRepository.findAll()
+                .stream()
+                .map(CategoryMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+}
