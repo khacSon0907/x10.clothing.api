@@ -1,14 +1,19 @@
 package x10.Clothing.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.service.authService.ICoreAuthService;
 import x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq;
 import x10.Clothing.api.service.authService.forgotPasswordUc.ForgotPasswordReq;
+import x10.Clothing.api.service.authService.loginUc.LoginReq;
+import x10.Clothing.api.service.authService.loginUc.LoginResponse;
+import x10.Clothing.api.service.authService.refreshTokenUc.RefreshTokenReq;
 import x10.Clothing.api.service.authService.registerUc.RegisterResponse;
 import x10.Clothing.api.service.authService.resetPasswordUc.ResetPasswordReq;
 import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForgotPasswordOtpReq;
@@ -16,14 +21,6 @@ import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForg
 import x10.Clothing.api.service.authService.verifyOtpUc.VerifyOtpReq;
 import x10.Clothing.api.service.userService.createUserUc.CreateUserReq;
 import x10.Clothing.api.share.response.ApiResponse;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import x10.Clothing.api.service.authService.loginUc.LoginReq;
-import x10.Clothing.api.service.authService.loginUc.LoginResponse;
-import x10.Clothing.api.service.authService.refreshTokenUc.RefreshTokenReq;
-import x10.Clothing.api.config.jwt.JwtProperties;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,10 +39,14 @@ public class AuthController {
     ) {
         LoginResponse loginResponse = coreAuthService.login(req);
 
-        // Calculate max-age in seconds from expiration in milliseconds
         long maxAgeSeconds = jwtProperties.getRefreshTokenExpiration() / 1000;
 
-        x10.Clothing.api.util.CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), maxAgeSeconds);
+        x10.Clothing.api.util.CookieUtil.addCookie(
+                response,
+                "refreshToken",
+                loginResponse.getRefreshToken(),
+                maxAgeSeconds
+        );
 
         return ApiResponse.success(
                 200,
@@ -64,6 +65,7 @@ public class AuthController {
             HttpServletRequest request
     ) {
         RegisterResponse response = coreAuthService.register(req);
+
         return ApiResponse.success(
                 201,
                 "AUTH.REGISTER_SUCCESS",
@@ -81,6 +83,7 @@ public class AuthController {
             HttpServletRequest request
     ) {
         coreAuthService.verifyOtp(req);
+
         return ApiResponse.success(
                 200,
                 "AUTH.VERIFY_OTP_SUCCESS",
@@ -98,6 +101,7 @@ public class AuthController {
             HttpServletResponse response
     ) {
         coreAuthService.logout(request, response);
+
         return ApiResponse.success(
                 200,
                 "AUTH.LOGOUT_SUCCESS",
@@ -116,7 +120,13 @@ public class AuthController {
             HttpServletResponse response
     ) {
         String bodyToken = (req != null) ? req.getRefreshToken() : null;
-        LoginResponse loginResponse = coreAuthService.refreshToken(bodyToken, request, response);
+
+        LoginResponse loginResponse = coreAuthService.refreshToken(
+                bodyToken,
+                request,
+                response
+        );
+
         return ApiResponse.success(
                 200,
                 "AUTH.REFRESH_SUCCESS",
@@ -130,10 +140,11 @@ public class AuthController {
     @PostMapping("/forgot-password")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<Void> forgotPassword(
-            @Valid @RequestBody  ForgotPasswordReq req,
+            @Valid @RequestBody ForgotPasswordReq req,
             HttpServletRequest request
     ) {
         coreAuthService.forgotPassword(req);
+
         return ApiResponse.success(
                 200,
                 "AUTH.FORGOT_PASSWORD_SUCCESS",
@@ -150,7 +161,8 @@ public class AuthController {
             @Valid @RequestBody VerifyForgotPasswordOtpReq req,
             HttpServletRequest request
     ) {
-            VerifyForgotPasswordOtpResponse response = coreAuthService.verifyForgotPasswordOtp(req);
+        VerifyForgotPasswordOtpResponse response = coreAuthService.verifyForgotPasswordOtp(req);
+
         return ApiResponse.success(
                 200,
                 "AUTH.VERIFY_FORGOT_PASSWORD_OTP_SUCCESS",
@@ -168,6 +180,7 @@ public class AuthController {
             HttpServletRequest request
     ) {
         coreAuthService.resetPassword(req);
+
         return ApiResponse.success(
                 200,
                 "AUTH.RESET_PASSWORD_SUCCESS",
@@ -184,10 +197,13 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordReq req,
             HttpServletRequest request
     ) {
-        // Extract userId from JWT token (stored in SecurityContext by JwtAuthenticationFilter)
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
         coreAuthService.changePassword(userId, req);
+
         return ApiResponse.success(
                 200,
                 "AUTH.CHANGE_PASSWORD_SUCCESS",

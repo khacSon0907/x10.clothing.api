@@ -2,6 +2,7 @@ package x10.Clothing.api.service.authService;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.service.authService.registerUc.IRegisterUc;
 import x10.Clothing.api.service.authService.registerUc.RegisterResponse;
@@ -16,6 +17,7 @@ import x10.Clothing.api.service.authService.forgotPasswordUc.IForgotPasswordUc;
 import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.IVerifyForgotPasswordOtpUc;
 import x10.Clothing.api.service.authService.resetPasswordUc.IResetPasswordUc;
 import x10.Clothing.api.service.authService.changePasswordUc.IChangePasswordUc;
+import x10.Clothing.api.service.authService.oauth2LoginUc.GoogleOauth2Service;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.util.CookieUtil;
 import x10.Clothing.api.share.exception.BusinessException;
@@ -37,6 +39,7 @@ public class CoreAuthServiceImpl implements ICoreAuthService {
     private final IVerifyForgotPasswordOtpUc verifyForgotPasswordOtpUc;
     private final IResetPasswordUc resetPasswordUc;
     private final IChangePasswordUc changePasswordUc;
+    private final GoogleOauth2Service googleOauth2Service;
     private final JwtProperties jwtProperties;
 
     @Override
@@ -106,5 +109,10 @@ public class CoreAuthServiceImpl implements ICoreAuthService {
     @Override
     public void changePassword(String userId, x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq req) {
         changePasswordUc.changePassword(userId, req);
+    }
+
+    @Override
+    public LoginResponse loginWithGoogle(OAuth2User req) {
+        return googleOauth2Service.loginWithGoogle(req);
     }
 }

@@ -7,93 +7,197 @@ import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.entities.UserEntity;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
+import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.redis.IRedisService;
 import x10.Clothing.api.service.notification.OtpGenerator;
 import x10.Clothing.api.service.notification.event.RegisterOtpEvent;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
-import x10.Clothing.api.common.domain.enums.UserRole;
-import java.util.Set;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
 public class CreateUserImpl implements ICreateUserUc {
 
-        private static final Duration REGISTER_OTP_EXPIRE = Duration.ofMinutes(5);
+        private static final Duration REGISTER_OTP_EXPIRE =
+                Duration.ofMinutes(5);
 
         private final IUserRepository userRepository;
+
         private final PasswordEncoder passwordEncoder;
+
         private final IRedisService redisService;
+
         private final OtpGenerator otpGenerator;
+
         private final ApplicationEventPublisher eventPublisher;
 
         @Override
         public UserEntity createUser(CreateUserReq req) {
 
-                Optional<UserEntity> existedUser = userRepository.findByEmail(req.getEmail());
+                String email = req.getEmail()
+                        .trim()
+                        .toLowerCase();
+
+                Optional<UserEntity> existedUser =
+                        userRepository.findByEmail(email);
 
                 if (existedUser.isPresent()) {
 
                         UserEntity user = existedUser.get();
 
-                        if (user.getProviderType() == AuthProvider.GUEST ||
-                                        (user.getStatus() == UserStatus.PENDING && !user.isEmailVerified())) {
+                        /*
+                         * CASE 1:
+                         * Guest account upgrade -> LOCAL
+                         */
+                        if (user.getProviderType() == AuthProvider.GUEST) {
 
                                 user.setUsername(req.getUsername());
+
+                                user.setEmail(email);
+
                                 user.setPasswordHash(
-                                                passwordEncoder.encode(req.getPassword()));
+                                        passwordEncoder.encode(req.getPassword()));
+
                                 user.setProviderType(AuthProvider.LOCAL);
+
                                 user.setStatus(UserStatus.PENDING);
+
                                 user.setEmailVerified(false);
+
+                                if (user.getRoles() == null
+                                        || user.getRoles().isEmpty()) {
+
+                                        user.setRoles(Set.of(UserRole.USER));
+                                }
+
                                 user.setUpdatedAt(Instant.now());
 
-                                UserEntity savedUser = userRepository.save(user);
+                                UserEntity savedUser =
+                                        userRepository.save(user);
 
                                 createOtpAndPublishEvent(savedUser);
 
                                 return savedUser;
                         }
 
-                        throw new BusinessException(UserError.EMAIL_EXISTS);
+                        /*
+                         * CASE 2:
+                         * LOCAL account chưa verify email
+                         * Cho phép register lại + gửi OTP mới
+                         */
+                        if (user.getProviderType() == AuthProvider.LOCAL
+                                && user.getStatus() == UserStatus.PENDING
+                                && !user.isEmailVerified()) {
+
+                                user.setUsername(req.getUsername());
+
+                                user.setPasswordHash(
+                                        passwordEncoder.encode(req.getPassword()));
+
+                                user.setUpdatedAt(Instant.now());
+
+                                UserEntity savedUser =
+                                        userRepository.save(user);
+
+                                createOtpAndPublishEvent(savedUser);
+
+                                return savedUser;
+                        }
+
+                        /*
+                         * CASE 3:
+                         * GOOGLE account muốn tạo password
+                         *
+                         * Không cần OTP:
+                         * - Google đã verify email
+                         * - account đã ACTIVE
+                         */
+                        if (user.getProviderType() == AuthProvider.GOOGLE) {
+
+                                user.setPasswordHash(
+                                        passwordEncoder.encode(req.getPassword()));
+
+                                /*
+                                 * Optional:
+                                 * update username nếu chưa có
+                                 */
+                                if (user.getUsername() == null
+                                        || user.getUsername().isBlank()) {
+
+                                        user.setUsername(req.getUsername());
+                                }
+
+                                if (user.getRoles() == null
+                                        || user.getRoles().isEmpty()) {
+
+                                        user.setRoles(Set.of(UserRole.USER));
+                                }
+
+                                user.setStatus(UserStatus.ACTIVE);
+
+                                user.setEmailVerified(true);
+
+                                user.setUpdatedAt(Instant.now());
+
+                                return userRepository.save(user);
+                        }
+
+                        /*
+                         * CASE 4:
+                         * Email đã tồn tại hoàn toàn
+                         */
+                        throw new BusinessException(
+                                UserError.EMAIL_EXISTS);
                 }
 
+                /*
+                 * CASE 5:
+                 * Tạo LOCAL account mới
+                 */
                 UserEntity newUser = UserEntity.builder()
-                                .username(req.getUsername())
-                                .email(req.getEmail())
-                                .passwordHash(
-                                                passwordEncoder.encode(req.getPassword()))
-                                .providerType(AuthProvider.LOCAL)
-                                .status(UserStatus.PENDING)
-                                .createdAt(Instant.now())
-                                .updatedAt(Instant.now())
-                                .emailVerified(false)
-                                .roles(Set.of(UserRole.USER))
-                                .build();
+                        .username(req.getUsername())
+                        .email(email)
+                        .passwordHash(
+                                passwordEncoder.encode(req.getPassword()))
+                        .providerType(AuthProvider.LOCAL)
+                        .status(UserStatus.PENDING)
+                        .emailVerified(false)
+                        .roles(Set.of(UserRole.USER))
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
+                        .build();
 
-                UserEntity savedUser = userRepository.save(newUser);
+                UserEntity savedUser =
+                        userRepository.save(newUser);
 
                 createOtpAndPublishEvent(savedUser);
 
                 return savedUser;
         }
 
-        private void createOtpAndPublishEvent(UserEntity user) {
+        private void createOtpAndPublishEvent(
+                UserEntity user) {
 
                 String otp = otpGenerator.generate();
 
                 redisService.saveRegisterOtp(
-                                user.getEmail(),
-                                otp,
-                                REGISTER_OTP_EXPIRE);
+                        user.getEmail(),
+                        otp,
+                        REGISTER_OTP_EXPIRE
+                );
 
                 eventPublisher.publishEvent(
-                                new RegisterOtpEvent(
-                                                user.getEmail(),
-                                                user.getUsername(),
-                                                otp));
+                        new RegisterOtpEvent(
+                                user.getEmail(),
+                                user.getUsername(),
+                                otp
+                        )
+                );
         }
 }

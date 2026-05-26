@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.enums.AuthProvider;
 import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.jwt.IJwtService;
@@ -34,7 +35,7 @@ public class LoginUcImpl implements ILoginUc {
     @Override
     public LoginResponse login(LoginReq req) {
 
-        String email = req.getEmail();
+        String email = req.getEmail().trim().toLowerCase();
 
         // 1. Check login lock
         if (redisService.isLoginLocked(email)) {
@@ -45,8 +46,39 @@ public class LoginUcImpl implements ILoginUc {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(UserError.USER_NOT_FOUND));
 
-        // 3. Verify password
-        if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+        /*
+         * 3. Check provider type
+         *
+         * LOCAL:
+         * - Login bằng email/password bình thường
+         *
+         * LOCAL_GOOGLE:
+         * - Account có cả Google và password
+         * - Cho phép login bằng email/password
+         *
+         * GOOGLE:
+         * - Google-only account
+         * - Không có passwordHash
+         * - Không cho login bằng password
+         *
+         * GUEST:
+         * - Guest chưa phải account chính thức
+         * - Không cho login bằng password
+         */
+        if (user.getProviderType() == AuthProvider.GOOGLE
+                && (user.getPasswordHash() == null || user.getPasswordHash().isBlank())) {
+
+            throw new BusinessException(UserError.GOOGLE_ACCOUNT_LOGIN_REQUIRED);
+        }
+
+        if (user.getProviderType() == AuthProvider.GUEST) {
+            throw new BusinessException(UserError.GUEST_ACCOUNT_CANNOT_LOGIN);
+        }
+
+        // 4. Verify password
+        if (user.getPasswordHash() == null
+                || user.getPasswordHash().isBlank()
+                || !passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
 
             long failedCount = redisService.incrementFailedLogin(email);
 
@@ -55,7 +87,6 @@ public class LoginUcImpl implements ILoginUc {
             if (failedCount >= MAX_FAILED_ATTEMPTS) {
 
                 redisService.lockUserLogin(email, LOCK_DURATION);
-
                 redisService.resetFailedLogin(email);
 
                 throw new BusinessException(UserError.LOGIN_LOCKED);
@@ -64,20 +95,20 @@ public class LoginUcImpl implements ILoginUc {
             throw new BusinessException(UserError.INVALID_CREDENTIALS);
         }
 
-        // Reset failed login
+        // 5. Reset failed login
         redisService.resetFailedLogin(email);
 
-        // 4. Check email verified
+        // 6. Check email verified
         if (!user.isEmailVerified()) {
             throw new BusinessException(UserError.EMAIL_NOT_VERIFIED);
         }
 
-        // 5. Check user status
+        // 7. Check user status
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BusinessException(UserError.USER_NOT_ACTIVE);
         }
 
-        // 6. Build role string
+        // 8. Build roles
         Set<UserRole> roles = user.getRoles();
 
         if (roles == null || roles.isEmpty()) {
@@ -88,7 +119,7 @@ public class LoginUcImpl implements ILoginUc {
                 .map(Enum::name)
                 .collect(Collectors.joining(","));
 
-        // 7. Build token payload
+        // 9. Build token payload
         TokenPayload payload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
@@ -96,12 +127,11 @@ public class LoginUcImpl implements ILoginUc {
                 .role(roleStr)
                 .build();
 
-        // 8. Generate tokens
+        // 10. Generate tokens
         String accessToken = jwtService.generateAccessToken(payload);
-
         String refreshToken = jwtService.generateRefreshToken(payload);
 
-        // 9. Return response
+        // 11. Return response
         return LoginResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())

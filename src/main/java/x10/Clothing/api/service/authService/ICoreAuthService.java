@@ -1,5 +1,6 @@
 package x10.Clothing.api.service.authService;
 
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq;
 import x10.Clothing.api.service.authService.forgotPasswordUc.ForgotPasswordReq;
 import x10.Clothing.api.service.authService.registerUc.RegisterResponse;
@@ -20,11 +21,13 @@ public interface ICoreAuthService {
     LoginResponse login(LoginReq req);
     void logout(HttpServletRequest request, HttpServletResponse response);
     LoginResponse refreshToken(String bodyToken, HttpServletRequest request, HttpServletResponse response);
-    void forgotPassword( ForgotPasswordReq req);
+    void forgotPassword(ForgotPasswordReq req);
 
-    VerifyForgotPasswordOtpResponse verifyForgotPasswordOtp(VerifyForgotPasswordOtpReq req );
+    VerifyForgotPasswordOtpResponse verifyForgotPasswordOtp(VerifyForgotPasswordOtpReq req);
 
-    void resetPassword( ResetPasswordReq req);
+    void resetPassword(ResetPasswordReq req);
 
     void changePassword(String userId, ChangePasswordReq req);
+
+    LoginResponse loginWithGoogle(OAuth2User req);
 }

@@ -1,7 +1,6 @@
 package x10.Clothing.api.config.security;
 
-
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,13 +22,20 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     @Bean
@@ -37,27 +43,34 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 🌐 CORS config (QUAN TRỌNG)
+    // CORS config theo môi trường local/prod
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // FE của bạn (Vite)
-        config.setAllowedOrigins(List.of("https://polo-man.vercel.app", "http://localhost:5173"));
+        config.setAllowedOrigins(List.of(frontendUrl));
+
         config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS"
         ));
+
         config.setAllowedHeaders(List.of("*"));
+
         config.setExposedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
                 "Set-Cookie"
         ));
+
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
@@ -70,20 +83,27 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
 
+                // OAuth2 Google cần session tạm để lưu state khi redirect qua Google
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // swagger
+                        // Swagger / OpenAPI
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // Public auth endpoints
+                        // Google OAuth2 endpoints của Spring Security
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
+
+                        // Auth public APIs
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
@@ -94,28 +114,37 @@ public class SecurityConfig {
                                 "/api/auth/refresh"
                         ).permitAll()
 
-                        // CATEGORY - chỉ ADMIN được tạo
-                        .requestMatchers(HttpMethod.POST, "/api/categories")
-                        .hasRole("ADMIN")
-
-                        // CATEGORY - ai cũng xem được
+                        // Categories public read
                         .requestMatchers(HttpMethod.GET, "/api/categories/**")
                         .permitAll()
 
-                        // Protected auth endpoints
+                        // Categories create/update/delete chỉ ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/categories")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
+                        .hasRole("ADMIN")
+
+                        // Các API auth còn lại cần login
                         .requestMatchers("/api/auth/**").authenticated()
 
-                        // user API cần login
+                        // User API cần login
                         .requestMatchers("/api/users/**").authenticated()
 
-                        // còn lại phải login
+                        // Những request còn lại cần login
                         .anyRequest().authenticated()
                 )
 
-                // Thêm JWT filter
+                // Bật Google OAuth2 Login
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureUrl(frontendUrl + "/login?error=oauth2")
+                )
+
+                // JWT filter cho các API dùng Bearer token
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }
