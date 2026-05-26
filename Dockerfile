@@ -37,10 +37,7 @@ RUN chown -R spring:spring /app
 # Use non-root user
 USER spring:spring
 
-# Render sẽ tự inject PORT
-ENV SPRING_PROFILES_ACTIVE=prod
-
-# Expose render port
+# Render thường dùng port 10000
 EXPOSE 10000
 
 # Start app
