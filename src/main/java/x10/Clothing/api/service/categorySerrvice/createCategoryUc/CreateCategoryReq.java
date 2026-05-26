@@ -1,4 +1,4 @@
-package x10.Clothing.api.service.category.createCategoryUc;
+package x10.Clothing.api.service.categorySerrvice.createCategoryUc;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

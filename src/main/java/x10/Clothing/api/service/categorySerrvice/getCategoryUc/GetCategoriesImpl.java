@@ -1,10 +1,10 @@
-package x10.Clothing.api.service.category.getCategoryUc;
+package x10.Clothing.api.service.categorySerrvice.getCategoryUc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICategoryRepository;
 import x10.Clothing.api.common.domain.entities.CategoryEntity;
-import x10.Clothing.api.service.category.createCategoryUc.CreateCategoryResp;
+import x10.Clothing.api.service.categorySerrvice.createCategoryUc.CreateCategoryResp;
 
 import java.util.List;
 import java.util.stream.Collectors;

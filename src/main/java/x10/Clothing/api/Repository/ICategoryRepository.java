@@ -9,5 +9,11 @@ public interface ICategoryRepository {
     CategoryEntity save(CategoryEntity category);
     Optional<CategoryEntity> findBySlug(String slug);
     Optional<CategoryEntity> findByName(String name);
+    Optional<CategoryEntity> findById(String id);
     List<CategoryEntity> findAll();
+    void deleteById(String id);
+
+    // dùng để check duplicate không phân biệt hoa thường
+    Optional<CategoryEntity> findByNameIgnoreCase(String name);
+
 }

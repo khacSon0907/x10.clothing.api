@@ -1,4 +1,4 @@
-package x10.Clothing.api.service.category.createCategoryUc;
+package x10.Clothing.api.service.categorySerrvice.createCategoryUc;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,9 +1,9 @@
-package x10.Clothing.api.service.category.getCategoryUc;
+package x10.Clothing.api.service.categorySerrvice.getCategoryUc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICategoryRepository;
-import x10.Clothing.api.service.category.createCategoryUc.CreateCategoryResp;
+import x10.Clothing.api.service.categorySerrvice.createCategoryUc.CreateCategoryResp;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.category.CategoryError;
 

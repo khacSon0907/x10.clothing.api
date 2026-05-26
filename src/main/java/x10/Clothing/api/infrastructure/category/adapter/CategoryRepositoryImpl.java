@@ -35,10 +35,27 @@ public class CategoryRepositoryImpl implements ICategoryRepository {
     }
 
     @Override
+    public Optional<CategoryEntity> findById(String id) {
+        return categoryMongoRepository.findById(id).map(CategoryMapper::toEntity);
+    }
+
+    @Override
     public List<CategoryEntity> findAll() {
         return categoryMongoRepository.findAll()
                 .stream()
                 .map(CategoryMapper::toEntity)
                 .collect(Collectors.toList());
+    }
+    @Override
+    public Optional<CategoryEntity> findByNameIgnoreCase(String name) {
+
+        return categoryMongoRepository
+                .findByNameIgnoreCase(name)
+                .map(CategoryMapper::toEntity);
+    }
+
+    @Override
+    public void deleteById(String id) {
+        categoryMongoRepository.deleteById(id);
     }
 }

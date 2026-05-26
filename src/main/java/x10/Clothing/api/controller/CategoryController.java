@@ -5,9 +5,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import x10.Clothing.api.service.category.ICoreCategoryService;
-import x10.Clothing.api.service.category.createCategoryUc.CreateCategoryReq;
-import x10.Clothing.api.service.category.createCategoryUc.CreateCategoryResp;
+import x10.Clothing.api.service.categorySerrvice.ICoreCategoryService;
+import x10.Clothing.api.service.categorySerrvice.createCategoryUc.CreateCategoryReq;
+import x10.Clothing.api.service.categorySerrvice.createCategoryUc.CreateCategoryResp;
+import x10.Clothing.api.service.categorySerrvice.updateCategoryUc.UpdateCategoryReq;
+import x10.Clothing.api.service.categorySerrvice.updateCategoryUc.UpdateCategoryResp;
 import x10.Clothing.api.share.response.ApiResponse;
 
 import java.util.List;
@@ -65,5 +67,34 @@ public class CategoryController {
                 request.getRequestURI(),
                 null
         );
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<UpdateCategoryResp> updateCategory(
+            @PathVariable("id") String id,
+            @Valid @RequestBody UpdateCategoryReq req,
+            HttpServletRequest request
+    ) {
+        // Set the ID from path variable
+        req.setId(id);
+        UpdateCategoryResp resp = coreCategoryService.updateCategory(req);
+        return ApiResponse.success(
+                200,
+                "CATEGORY.UPDATE_SUCCESS",
+                "Cập nhật danh mục thành công",
+                resp,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(
+            @PathVariable("id") String id,
+            HttpServletRequest request
+    ) {
+        coreCategoryService.deleteCategory(id);
     }
 }
