@@ -5,12 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import x10.Clothing.api.service.userService.ICoreUserService;
 import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;
+import x10.Clothing.api.service.userService.updateUserUc.UpdateUserRequest;
+import x10.Clothing.api.service.userService.updateUserUc.UpdateUserResponse;
 import x10.Clothing.api.share.response.ApiResponse;
 
 @RestController
@@ -34,6 +33,26 @@ public class UserController {
                 "Lấy thông tin người dùng thành công",
                 response,
                 request.getRequestURI(),
+                null
+        );
+    }
+
+    @PutMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<UpdateUserResponse> updateUser(
+            @RequestBody UpdateUserRequest request,
+            HttpServletRequest httpRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getPrincipal().toString();
+
+        UpdateUserResponse response = coreUserService.updateUser(userId, request);
+
+        return ApiResponse.success(
+                200,
+                "USER.UPDATE_SUCCESS",
+                "Cập nhật thông tin người dùng thành công",
+                response,
+                httpRequest.getRequestURI(),
                 null
         );
     }

@@ -1,4 +1,4 @@
-package x10.Clothing.api.common.domain.entities;
+package x10.Clothing.api.infrastructure.product.db.mongodb;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,17 +8,17 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ColorVariantEntity {
+@NoArgsConstructor
+@Builder
+public class ColorVariantDocument {
     private String id;
 
     private String colorName; // Black, White, Red
 
     private String colorCode; // #000000, #FFFFFF
 
-    private List<ProductImageEntity> images;
+    private List<ProductImageDocument> images;
 
-    private List<SizeVariantEntity> sizes ;
+    private List<SizeVariantDocument> sizes;
 }

@@ -126,6 +126,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
                         .hasRole("ADMIN")
 
+                        // Products public read
+                        .requestMatchers(HttpMethod.GET, "/api/products/**")
+                        .permitAll()
+
+                        // Products create/update/delete chỉ ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/products")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**")
+                        .hasRole("ADMIN")
+
                         // Các API auth còn lại cần login
                         .requestMatchers("/api/auth/**").authenticated()
 
