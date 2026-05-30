@@ -46,25 +46,8 @@ public class LoginUcImpl implements ILoginUc {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(UserError.USER_NOT_FOUND));
 
-        /*
-         * 3. Check provider type
-         *
-         * LOCAL:
-         * - Login bằng email/password bình thường
-         *
-         * LOCAL_GOOGLE:
-         * - Account có cả Google và password
-         * - Cho phép login bằng email/password
-         *
-         * GOOGLE:
-         * - Google-only account
-         * - Không có passwordHash
-         * - Không cho login bằng password
-         *
-         * GUEST:
-         * - Guest chưa phải account chính thức
-         * - Không cho login bằng password
-         */
+
+
         if (user.getProviderType() == AuthProvider.GOOGLE
                 && (user.getPasswordHash() == null || user.getPasswordHash().isBlank())) {
 

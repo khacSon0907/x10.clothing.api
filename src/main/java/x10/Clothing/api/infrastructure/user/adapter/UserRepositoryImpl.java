@@ -8,6 +8,7 @@ import x10.Clothing.api.infrastructure.user.adapter.mapper.UserMapper;
 import x10.Clothing.api.infrastructure.user.db.mongodb.UserDocument;
 import x10.Clothing.api.infrastructure.user.db.mongodb.UserMongoRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -38,5 +39,14 @@ public class UserRepositoryImpl implements IUserRepository {
 
         return userMongoRepository.findById(id)
                 .map(UserMapper::toEntity);
+    }
+
+    @Override
+    public List<UserEntity> findAll() {
+
+        return userMongoRepository.findAll()
+                .stream()
+                .map(UserMapper::toEntity)
+                .toList();
     }
 }

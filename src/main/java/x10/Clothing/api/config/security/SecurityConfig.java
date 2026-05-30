@@ -142,7 +142,21 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").authenticated()
 
                         // User API cần login
-                        .requestMatchers("/api/users/**").authenticated()
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/users/me"
+                                ).authenticated()
+
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/api/users/me"
+                                ).authenticated()
+
+// Chỉ ADMIN xem toàn bộ user
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/users"
+                                ).hasRole("ADMIN")
 
                         // Những request còn lại cần login
                         .anyRequest().authenticated()

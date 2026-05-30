@@ -4,6 +4,7 @@ package x10.Clothing.api.Repository;
 
 import x10.Clothing.api.common.domain.entities.UserEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IUserRepository {
@@ -13,4 +14,6 @@ public interface IUserRepository {
     Optional<UserEntity> findByEmail(String email);
 
     Optional<UserEntity> findById(String id);
+
+    List<UserEntity> findAll();
 }

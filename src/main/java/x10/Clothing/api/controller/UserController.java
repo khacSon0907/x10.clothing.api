@@ -7,10 +7,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import x10.Clothing.api.service.userService.ICoreUserService;
+import x10.Clothing.api.service.userService.getAllUsersUc.GetAllUsersResponse;
 import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserRequest;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserResponse;
 import x10.Clothing.api.share.response.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -53,6 +56,21 @@ public class UserController {
                 "Cập nhật thông tin người dùng thành công",
                 response,
                 httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<GetAllUsersResponse>> getAllUsers(HttpServletRequest request) {
+        List<GetAllUsersResponse> response = coreUserService.getAllUsers();
+
+        return ApiResponse.success(
+                200,
+                "USER.GET_ALL_SUCCESS",
+                "Lấy danh sách người dùng thành công",
+                response,
+                request.getRequestURI(),
                 null
         );
     }
