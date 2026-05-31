@@ -12,9 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import x10.Clothing.api.config.jwt.JwtAuthenticationFilter;
 
 import java.util.List;
@@ -27,7 +29,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:https://polo-man.vercel.app}")
     private String frontendUrl;
 
     public SecurityConfig(
@@ -43,12 +45,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CORS config theo môi trường local/prod
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(frontendUrl));
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://polo-man.vercel.app"
+        ));
 
         config.setAllowedMethods(List.of(
                 "GET",
@@ -59,7 +63,13 @@ public class SecurityConfig {
                 "OPTIONS"
         ));
 
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
+        ));
 
         config.setExposedHeaders(List.of(
                 "Authorization",
@@ -89,6 +99,9 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Cho phép preflight request của CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Swagger / OpenAPI
                         .requestMatchers(
@@ -139,38 +152,42 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
 
                         // Các API auth còn lại cần login
-                        .requestMatchers("/api/auth/**").authenticated()
+                        .requestMatchers("/api/auth/**")
+                        .authenticated()
 
                         // User API cần login
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/users/me"
-                                ).authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users/me")
+                        .authenticated()
 
-                                .requestMatchers(
-                                        HttpMethod.PUT,
-                                        "/api/users/me"
-                                ).authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/me")
+                        .authenticated()
 
-// Chỉ ADMIN xem toàn bộ user
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/users"
-                                ).hasRole("ADMIN")
+                        // Chỉ ADMIN xem toàn bộ user
+                        .requestMatchers(HttpMethod.GET, "/api/users")
+                        .hasRole("ADMIN")
 
                         // Những request còn lại cần login
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
 
                 // Bật Google OAuth2 Login
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler)
-                        .failureUrl(frontendUrl + "/login?error=oauth2")
+                        .failureUrl(getFrontendUrl() + "/login?error=oauth2")
                 )
 
                 // JWT filter cho các API dùng Bearer token
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private String getFrontendUrl() {
+        if (StringUtils.hasText(frontendUrl)) {
+            return frontendUrl;
+        }
+
+        return "https://polo-man.vercel.app";
     }
 }
