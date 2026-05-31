@@ -1,6 +1,5 @@
 package x10.Clothing.api.config.jwt;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // Không có token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -47,33 +45,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
-
-            // Kiểm tra token có trong blacklist không
             if (redisService.isTokenBlacklisted(token)) {
                 log.warn("Attempt to use blacklisted token");
-                filterChain.doFilter(request, response);
+                SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been blacklisted");
                 return;
             }
 
-            // Validate access token và lấy TokenPayload
             TokenPayload tokenPayload = jwtService.validateAccessToken(token);
 
-            // Kiểm tra xem đã có authentication chưa
-            if (tokenPayload.getUsername() != null &&
+            if (tokenPayload.getUserId() != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Build authorities from role claim. Support comma-separated roles (e.g. "ADMIN,USER").
                 List<SimpleGrantedAuthority> authorities = List.of();
+
                 if (tokenPayload.getRole() != null && !tokenPayload.getRole().trim().isEmpty()) {
                     authorities = Arrays.stream(tokenPayload.getRole().split(","))
                             .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                            .filter(role -> !role.isEmpty())
+                            .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                             .map(SimpleGrantedAuthority::new)
                             .collect(Collectors.toList());
                 }
 
-                // Tạo Authentication object với roles từ token
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 tokenPayload.getUserId(),
@@ -81,20 +75,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 authorities
                         );
 
-
-
                 authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                // Set authentication vào SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         } catch (Exception e) {
             log.warn("JWT token validation failed: {}", e.getMessage());
-            // Token invalid -> bỏ qua, không throw exception
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            return;
         }
 
         filterChain.doFilter(request, response);
