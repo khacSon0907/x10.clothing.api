@@ -46,17 +46,8 @@ public class LoginUcImpl implements ILoginUc {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(UserError.USER_NOT_FOUND));
 
-
-
-        if (user.getProviderType() == AuthProvider.GOOGLE
-                && (user.getPasswordHash() == null || user.getPasswordHash().isBlank())) {
-
-            throw new BusinessException(UserError.GOOGLE_ACCOUNT_LOGIN_REQUIRED);
-        }
-
-        if (user.getProviderType() == AuthProvider.GUEST) {
-            throw new BusinessException(UserError.GUEST_ACCOUNT_CANNOT_LOGIN);
-        }
+        // 3. Check provider type
+        validateProviderCanLoginWithPassword(user);
 
         // 4. Verify password
         if (user.getPasswordHash() == null
@@ -68,7 +59,6 @@ public class LoginUcImpl implements ILoginUc {
             log.warn("Failed login attempt {} for user {}", failedCount, email);
 
             if (failedCount >= MAX_FAILED_ATTEMPTS) {
-
                 redisService.lockUserLogin(email, LOCK_DURATION);
                 redisService.resetFailedLogin(email);
 
@@ -123,5 +113,22 @@ public class LoginUcImpl implements ILoginUc {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    private void validateProviderCanLoginWithPassword(UserEntity user) {
+        AuthProvider providerType = user.getProviderType();
+
+        if (providerType == AuthProvider.GUEST) {
+            throw new BusinessException(UserError.GUEST_ACCOUNT_CANNOT_LOGIN);
+        }
+
+        if (providerType == AuthProvider.GOOGLE
+                && (user.getPasswordHash() == null || user.getPasswordHash().isBlank())) {
+            throw new BusinessException(UserError.GOOGLE_ACCOUNT_LOGIN_REQUIRED);
+        }
+
+        // LOCAL: cho login bằng email/password
+        // LOCAL_GOOGLE: cho login bằng email/password và Google
+        // null: cho đi tiếp để tương thích data cũ
     }
 }

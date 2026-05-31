@@ -26,18 +26,9 @@ public class UserController {
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<GetMeResponse> getMe(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null ||
-                !authentication.isAuthenticated() ||
-                "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
-        }
-
-        String userId = authentication.getPrincipal().toString();
-
+        String userId = getCurrentUserId();
+        System.out.println("Current user ID api get me : " + userId); // Debug log
         GetMeResponse response = coreUserService.getMe(userId);
-
         return ApiResponse.success(
                 200,
                 "USER.GET_ME_SUCCESS",
@@ -48,13 +39,13 @@ public class UserController {
         );
     }
 
-    @PutMapping("/me")
+    @PutMapping("/me/update")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<UpdateUserResponse> updateUser(
             @RequestBody UpdateUserRequest request,
-            HttpServletRequest httpRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getPrincipal().toString();
+            HttpServletRequest httpRequest
+    ) {
+        String userId = getCurrentUserId();
 
         UpdateUserResponse response = coreUserService.updateUser(userId, request);
 
@@ -68,7 +59,7 @@ public class UserController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<List<GetAllUsersResponse>> getAllUsers(HttpServletRequest request) {
         List<GetAllUsersResponse> response = coreUserService.getAllUsers();
@@ -81,5 +72,21 @@ public class UserController {
                 request.getRequestURI(),
                 null
         );
+    }
+
+    private String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication.getPrincipal() == null ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User is not authenticated"
+            );
+        }
+
+        return authentication.getPrincipal().toString();
     }
 }

@@ -44,17 +44,30 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
                     return createNewGoogleUser(googleUserInfo);
                 });
 
+        // Nếu user cũ chưa verify email, Google đã verify rồi thì update luôn
         if (!user.isEmailVerified()) {
             user.setEmailVerified(true);
             user.setVerifiedAt(LocalDateTime.now());
         }
 
-        if (user.getProviderType() == null) {
-            user.setProviderType(AuthProvider.GOOGLE);
-        }
+        // Update provider type khi login Google
+        updateProviderTypeForGoogleLogin(user);
 
+        // Nếu user chưa có avatar thì lấy avatar từ Google
         if (user.getAvatarUrl() == null || user.getAvatarUrl().isBlank()) {
             user.setAvatarUrl(googleUserInfo.getPicture());
+        }
+
+        // Nếu username bị null/blank thì tạo từ email
+        if (user.getUsername() == null || user.getUsername().isBlank()) {
+            user.setUsername(generateUsernameFromEmail(user.getEmail()));
+        }
+
+        // Nếu roles bị null/rỗng thì set USER
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Set<UserRole> roles = new HashSet<>();
+            roles.add(UserRole.USER);
+            user.setRoles(roles);
         }
 
         user.setUpdatedAt(Instant.now());
@@ -84,6 +97,30 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    private void updateProviderTypeForGoogleLogin(UserEntity user) {
+        AuthProvider providerType = user.getProviderType();
+
+        if (providerType == null) {
+            user.setProviderType(AuthProvider.GOOGLE);
+            return;
+        }
+
+        if (providerType == AuthProvider.LOCAL) {
+            user.setProviderType(AuthProvider.LOCAL_GOOGLE);
+            return;
+        }
+
+        // Nếu đã là GOOGLE hoặc LOCAL_GOOGLE thì giữ nguyên
+        if (providerType == AuthProvider.GOOGLE || providerType == AuthProvider.LOCAL_GOOGLE) {
+            return;
+        }
+
+        // Nếu là GUEST mà login Google thì chuyển thành GOOGLE
+        if (providerType == AuthProvider.GUEST) {
+            user.setProviderType(AuthProvider.GOOGLE);
+        }
     }
 
     private GoogleUserInfo extractGoogleUserInfo(OAuth2User oauth2User) {

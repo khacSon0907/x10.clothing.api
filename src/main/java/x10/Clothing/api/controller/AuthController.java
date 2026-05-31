@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.service.authService.ICoreAuthService;
 import x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq;
@@ -21,11 +23,14 @@ import x10.Clothing.api.service.authService.verifyForgotPasswordOtpUc.VerifyForg
 import x10.Clothing.api.service.authService.verifyOtpUc.VerifyOtpReq;
 import x10.Clothing.api.service.userService.createUserUc.CreateUserReq;
 import x10.Clothing.api.share.response.ApiResponse;
+import x10.Clothing.api.util.CookieUtil;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
     private final ICoreAuthService coreAuthService;
     private final JwtProperties jwtProperties;
@@ -39,14 +44,7 @@ public class AuthController {
     ) {
         LoginResponse loginResponse = coreAuthService.login(req);
 
-        long maxAgeSeconds = jwtProperties.getRefreshTokenExpiration() / 1000;
-
-        x10.Clothing.api.util.CookieUtil.addCookie(
-                response,
-                "refreshToken",
-                loginResponse.getRefreshToken(),
-                maxAgeSeconds
-        );
+        addRefreshTokenCookie(response, loginResponse);
 
         return ApiResponse.success(
                 200,
@@ -102,6 +100,9 @@ public class AuthController {
     ) {
         coreAuthService.logout(request, response);
 
+        CookieUtil.deleteCookie(response, REFRESH_TOKEN_COOKIE_NAME);
+        SecurityContextHolder.clearContext();
+
         return ApiResponse.success(
                 200,
                 "AUTH.LOGOUT_SUCCESS",
@@ -126,6 +127,8 @@ public class AuthController {
                 request,
                 response
         );
+
+        addRefreshTokenCookie(response, loginResponse);
 
         return ApiResponse.success(
                 200,
@@ -197,10 +200,7 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordReq req,
             HttpServletRequest request
     ) {
-        String userId = (String) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        String userId = getCurrentUserId();
 
         coreAuthService.changePassword(userId, req);
 
@@ -212,5 +212,36 @@ public class AuthController {
                 request.getRequestURI(),
                 null
         );
+    }
+
+    private void addRefreshTokenCookie(
+            HttpServletResponse response,
+            LoginResponse loginResponse
+    ) {
+        if (loginResponse == null || loginResponse.getRefreshToken() == null) {
+            return;
+        }
+
+        long maxAgeSeconds = jwtProperties.getRefreshTokenExpiration() / 1000;
+
+        CookieUtil.addCookie(
+                response,
+                REFRESH_TOKEN_COOKIE_NAME,
+                loginResponse.getRefreshToken(),
+                maxAgeSeconds
+        );
+    }
+
+    private String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication.getPrincipal() == null ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+
+        return authentication.getPrincipal().toString();
     }
 }
