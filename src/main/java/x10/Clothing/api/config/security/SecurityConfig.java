@@ -151,6 +151,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**")
                         .hasRole("ADMIN")
 
+                        // Banners public read
+                        .requestMatchers(HttpMethod.GET, "/api/banners/**")
+                        .permitAll()
+
+                        // Banners create/update/delete chỉ ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/banners")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/banners/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/banners/**")
+                        .hasRole("ADMIN")
+
                         // Các API auth còn lại cần login
                         .requestMatchers("/api/auth/**")
                         .authenticated()
