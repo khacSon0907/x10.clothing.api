@@ -29,5 +29,5 @@ public interface ICoreAuthService {
 
     void changePassword(String userId, ChangePasswordReq req);
 
-    LoginResponse loginWithGoogle(OAuth2User req);
+        LoginResponse loginWithGoogle(OAuth2User req);
 }

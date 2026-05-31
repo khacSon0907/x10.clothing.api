@@ -10,8 +10,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
 import x10.Clothing.api.service.authService.oauth2LoginUc.GoogleOauth2Service;
+import x10.Clothing.api.util.CookieUtil;
 
 import java.io.IOException;
 
@@ -19,7 +21,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+
     private final GoogleOauth2Service googleOauth2Service;
+    private final JwtProperties jwtProperties;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -35,10 +40,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         LoginResponse loginResponse = googleOauth2Service.loginWithGoogle(oauth2User);
 
+        long maxAgeSeconds = jwtProperties.getRefreshTokenExpiration() / 1000;
+
+        CookieUtil.addCookie(
+                response,
+                REFRESH_TOKEN_COOKIE_NAME,
+                loginResponse.getRefreshToken(),
+                maxAgeSeconds
+        );
+
         String redirectUrl = UriComponentsBuilder
                 .fromUriString(frontendUrl + "/oauth2/success")
                 .queryParam("accessToken", loginResponse.getAccessToken())
-                .queryParam("refreshToken", loginResponse.getRefreshToken())
                 .build()
                 .toUriString();
 
