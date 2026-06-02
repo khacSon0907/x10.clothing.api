@@ -48,4 +48,16 @@ public class ProductRepositoryImpl implements IProductRepository {
     public boolean existsBySlug(String slug) {
         return productMongoRepository.existsBySlug(slug);
     }
+
+    @Override
+    public List<ProductEntity> findByNameContainingIgnoreCase(String name) {
+        return productMongoRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(ProductMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteById(String id) {
+        productMongoRepository.deleteById(id);
+    }
 }

@@ -6,7 +6,13 @@ import x10.Clothing.api.common.domain.entities.ProductEntity;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductRequest;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductResponse;
 import x10.Clothing.api.service.productService.createProductUc.ICreateProductUc;
+import x10.Clothing.api.service.productService.deleteProductUc.IDeleteProductUc;
 import x10.Clothing.api.service.productService.getAllProductsUc.IGetAllProductsUc;
+import x10.Clothing.api.service.productService.getProductUc.IGetProductUc;
+import x10.Clothing.api.service.productService.searchProductByNameUc.ISearchProductByNameUc;
+import x10.Clothing.api.service.productService.updateProductUc.IUpdateProductUc;
+import x10.Clothing.api.service.productService.updateProductUc.UpdateProductRequest;
+import x10.Clothing.api.service.productService.updateProductUc.UpdateProductResponse;
 
 import java.util.List;
 
@@ -16,6 +22,10 @@ public class CoreProductServiceImpl implements ICoreProductService {
 
     private final ICreateProductUc createProductUc;
     private final IGetAllProductsUc getAllProductsUc;
+    private final ISearchProductByNameUc searchProductByNameUc;
+    private final IUpdateProductUc updateProductUc;
+    private final IDeleteProductUc deleteProductUc;
+    private final IGetProductUc getProductUc;
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
@@ -25,5 +35,25 @@ public class CoreProductServiceImpl implements ICoreProductService {
     @Override
     public List<ProductEntity> getAllProducts() {
         return getAllProductsUc.getAllProducts();
+    }
+
+    @Override
+    public List<ProductEntity> searchProductByName(String name) {
+        return searchProductByNameUc.searchProductByName(name);
+    }
+
+    @Override
+    public UpdateProductResponse updateProduct(UpdateProductRequest request) {
+        return updateProductUc.updateProduct(request);
+    }
+
+    @Override
+    public void deleteProduct(String id) {
+        deleteProductUc.deleteProduct(id);
+    }
+
+    @Override
+    public ProductEntity getProductByIdOrSlug(String idOrSlug) {
+        return getProductUc.getProductByIdOrSlug(idOrSlug);
     }
 }

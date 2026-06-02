@@ -11,4 +11,6 @@ public interface IProductRepository {
     Optional<ProductEntity> findById(String id);
     Optional<ProductEntity> findBySlug(String slug);
     boolean existsBySlug(String slug);
+    List<ProductEntity> findByNameContainingIgnoreCase(String name);
+    void deleteById(String id);
 }
