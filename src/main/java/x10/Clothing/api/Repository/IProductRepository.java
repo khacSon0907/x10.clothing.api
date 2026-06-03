@@ -13,4 +13,5 @@ public interface IProductRepository {
     boolean existsBySlug(String slug);
     List<ProductEntity> findByNameContainingIgnoreCase(String name);
     void deleteById(String id);
+    List<ProductEntity> findByCategoryId(String categoryId);
 }

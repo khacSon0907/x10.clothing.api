@@ -10,4 +10,5 @@ public interface ProductMongoRepository extends MongoRepository<ProductDocument,
     Optional<ProductDocument> findBySlug(String slug);
     boolean existsBySlug(String slug);
     java.util.List<ProductDocument> findByNameContainingIgnoreCase(String name);
+    java.util.List<ProductDocument> findByCategoryId(String categoryId);
 }

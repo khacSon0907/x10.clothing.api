@@ -15,4 +15,5 @@ public interface ICoreProductService {
     UpdateProductResponse updateProduct(UpdateProductRequest request);
     void deleteProduct(String id);
     ProductEntity getProductByIdOrSlug(String idOrSlug);
+    List<ProductEntity> getProductsByCategoryId(String categoryId);
 }

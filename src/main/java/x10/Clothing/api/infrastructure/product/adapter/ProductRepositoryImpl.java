@@ -60,4 +60,11 @@ public class ProductRepositoryImpl implements IProductRepository {
     public void deleteById(String id) {
         productMongoRepository.deleteById(id);
     }
+
+    @Override
+    public List<ProductEntity> findByCategoryId(String categoryId) {
+        return productMongoRepository.findByCategoryId(categoryId).stream()
+                .map(ProductMapper::toEntity)
+                .collect(Collectors.toList());
+    }
 }

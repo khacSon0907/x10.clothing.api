@@ -101,6 +101,24 @@ public class ProductController {
         coreProductService.deleteProduct(id);
     }
 
+    @GetMapping("/category/{categoryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<ProductEntity>> getProductsByCategory(
+            @PathVariable("categoryId") String categoryId,
+            HttpServletRequest httpRequest) {
+
+        List<ProductEntity> response = coreProductService.getProductsByCategoryId(categoryId);
+
+        return ApiResponse.success(
+                200,
+                "PRODUCT.GET_BY_CATEGORY_SUCCESS",
+                "Lấy sản phẩm theo danh mục thành công",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
     @GetMapping("/{idOrSlug}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<ProductEntity> getProductByIdOrSlug(

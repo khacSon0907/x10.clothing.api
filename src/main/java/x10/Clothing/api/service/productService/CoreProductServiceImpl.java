@@ -9,6 +9,7 @@ import x10.Clothing.api.service.productService.createProductUc.ICreateProductUc;
 import x10.Clothing.api.service.productService.deleteProductUc.IDeleteProductUc;
 import x10.Clothing.api.service.productService.getAllProductsUc.IGetAllProductsUc;
 import x10.Clothing.api.service.productService.getProductUc.IGetProductUc;
+import x10.Clothing.api.service.productService.getProductsByCategoryIdUc.IGetProductsByCategoryIdUc;
 import x10.Clothing.api.service.productService.searchProductByNameUc.ISearchProductByNameUc;
 import x10.Clothing.api.service.productService.updateProductUc.IUpdateProductUc;
 import x10.Clothing.api.service.productService.updateProductUc.UpdateProductRequest;
@@ -26,6 +27,7 @@ public class CoreProductServiceImpl implements ICoreProductService {
     private final IUpdateProductUc updateProductUc;
     private final IDeleteProductUc deleteProductUc;
     private final IGetProductUc getProductUc;
+    private final IGetProductsByCategoryIdUc getProductsByCategoryIdUc;
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
@@ -55,5 +57,10 @@ public class CoreProductServiceImpl implements ICoreProductService {
     @Override
     public ProductEntity getProductByIdOrSlug(String idOrSlug) {
         return getProductUc.getProductByIdOrSlug(idOrSlug);
+    }
+
+    @Override
+    public List<ProductEntity> getProductsByCategoryId(String categoryId) {
+        return getProductsByCategoryIdUc.getProductsByCategoryId(categoryId);
     }
 }
