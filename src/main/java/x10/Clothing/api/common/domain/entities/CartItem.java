@@ -14,10 +14,14 @@ import java.math.BigDecimal;
 public class CartItem {
 
     private String productId;
+    private String productName;
+    private String productImage;
 
     private String colorId;
+    private String colorName;
 
     private String sizeId;
+    private String sizeName;
 
     private Integer quantity;
 

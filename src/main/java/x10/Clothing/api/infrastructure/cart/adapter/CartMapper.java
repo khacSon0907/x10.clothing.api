@@ -5,17 +5,23 @@ import x10.Clothing.api.common.domain.entities.CartItem;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartDocument;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartItemDocument;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CartMapper {
 
     public static CartEntity toEntity(CartDocument doc) {
-        if (doc == null) return null;
-        List<CartItem> items = null;
-        if (doc.getItems() != null) {
-            items = doc.getItems().stream().map(CartMapper::toItemEntity).collect(Collectors.toList());
+        if (doc == null) {
+            return null;
         }
+
+        List<CartItem> items = doc.getItems() == null
+                ? new ArrayList<>()
+                : doc.getItems().stream()
+                .map(CartMapper::itemDocToEntity)
+                .collect(Collectors.toList());
+
         return CartEntity.builder()
                 .cartId(doc.getId())
                 .userId(doc.getUserId())
@@ -28,11 +34,16 @@ public class CartMapper {
     }
 
     public static CartDocument toDocument(CartEntity entity) {
-        if (entity == null) return null;
-        List<CartItemDocument> items = null;
-        if (entity.getItems() != null) {
-            items = entity.getItems().stream().map(CartMapper::toItemDocument).collect(Collectors.toList());
+        if (entity == null) {
+            return null;
         }
+
+        List<CartItemDocument> items = entity.getItems() == null
+                ? new ArrayList<>()
+                : entity.getItems().stream()
+                .map(CartMapper::itemEntityToDoc)
+                .collect(Collectors.toList());
+
         return CartDocument.builder()
                 .id(entity.getCartId())
                 .userId(entity.getUserId())
@@ -44,26 +55,39 @@ public class CartMapper {
                 .build();
     }
 
-    public static CartItem toItemEntity(CartItemDocument doc) {
-        if (doc == null) return null;
+    private static CartItem itemDocToEntity(CartItemDocument doc) {
+        if (doc == null) {
+            return null;
+        }
+
         return CartItem.builder()
                 .productId(doc.getProductId())
+                .productName(doc.getProductName())
+                .productImage(doc.getProductImage())
                 .colorId(doc.getColorId())
+                .colorName(doc.getColorName())
                 .sizeId(doc.getSizeId())
+                .sizeName(doc.getSizeName())
                 .quantity(doc.getQuantity())
                 .unitPrice(doc.getUnitPrice())
                 .build();
     }
 
-    public static CartItemDocument toItemDocument(CartItem entity) {
-        if (entity == null) return null;
+    private static CartItemDocument itemEntityToDoc(CartItem entity) {
+        if (entity == null) {
+            return null;
+        }
+
         return CartItemDocument.builder()
                 .productId(entity.getProductId())
+                .productName(entity.getProductName())
+                .productImage(entity.getProductImage())
                 .colorId(entity.getColorId())
+                .colorName(entity.getColorName())
                 .sizeId(entity.getSizeId())
+                .sizeName(entity.getSizeName())
                 .quantity(entity.getQuantity())
                 .unitPrice(entity.getUnitPrice())
                 .build();
     }
 }
-

@@ -1,14 +1,16 @@
 package x10.Clothing.api.service.cartService;
 
-import x10.Clothing.api.common.domain.entities.CartEntity;
-import x10.Clothing.api.service.cartService.addItemToCartUc.AddCartItemReq;
-import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemReq;
+import x10.Clothing.api.service.cartService.addItemToCartUc.AddItemToCartUcReq;
+import x10.Clothing.api.service.cartService.addItemToCartUc.AddItemToCartUcResp;
+import x10.Clothing.api.service.cartService.getCartUc.GetCartUcResp;
+import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemUcReq;
+import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemUcResp;
 
 public interface ICoreCartService {
-    CartEntity getCart(String userId);
-    CartEntity addItem(String userId, AddCartItemReq req);
-    CartEntity updateItem(String userId, String productId, UpdateCartItemReq req);
-    CartEntity removeItem(String userId, String productId);
-    void clearCart(String userId);
+    GetCartUcResp getCart(String userId);
+    AddItemToCartUcResp addItem(String userId, AddItemToCartUcReq req);
+    UpdateCartItemUcResp updateItem(String userId, String productId, UpdateCartItemUcReq req);
+    String removeItem(String userId, String productId);
+    String clearCart(String userId);
 }
 

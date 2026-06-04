@@ -5,10 +5,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import x10.Clothing.api.common.domain.entities.CartEntity;
 import x10.Clothing.api.service.cartService.ICoreCartService;
-import x10.Clothing.api.service.cartService.addItemToCartUc.AddCartItemReq;
-import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemReq;
+import x10.Clothing.api.service.cartService.addItemToCartUc.AddItemToCartUcReq;
+import x10.Clothing.api.service.cartService.addItemToCartUc.AddItemToCartUcResp;
+import x10.Clothing.api.service.cartService.getCartUc.GetCartUcResp;
+import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemUcReq;
+import x10.Clothing.api.service.cartService.updateCartItemUc.UpdateCartItemUcResp;
 import x10.Clothing.api.share.response.ApiResponse;
 
 @RestController
@@ -20,8 +22,11 @@ public class CartController {
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<CartEntity> getCart(@PathVariable("userId") String userId, HttpServletRequest request) {
-        CartEntity response = coreCartService.getCart(userId);
+    public ApiResponse<GetCartUcResp> getCart(
+            @PathVariable("userId") String userId,
+            HttpServletRequest request
+    ) {
+        GetCartUcResp response = coreCartService.getCart(userId);
         return ApiResponse.success(
                 200,
                 "CART.GET_SUCCESS",
@@ -33,15 +38,15 @@ public class CartController {
     }
 
     @PostMapping("/{userId}/items")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<CartEntity> addItem(
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<AddItemToCartUcResp> addItem(
             @PathVariable("userId") String userId,
-            @Valid @RequestBody AddCartItemReq req,
+            @Valid @RequestBody AddItemToCartUcReq req,
             HttpServletRequest request
     ) {
-        CartEntity response = coreCartService.addItem(userId, req);
+        AddItemToCartUcResp response = coreCartService.addItem(userId, req);
         return ApiResponse.success(
-                200,
+                201,
                 "CART.ADD_ITEM_SUCCESS",
                 "Thêm vào giỏ hàng thành công",
                 response,
@@ -52,13 +57,13 @@ public class CartController {
 
     @PutMapping("/{userId}/items/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<CartEntity> updateItem(
+    public ApiResponse<UpdateCartItemUcResp> updateItem(
             @PathVariable("userId") String userId,
             @PathVariable("productId") String productId,
-            @Valid @RequestBody UpdateCartItemReq req,
+            @Valid @RequestBody UpdateCartItemUcReq req,
             HttpServletRequest request
     ) {
-        CartEntity response = coreCartService.updateItem(userId, productId, req);
+        UpdateCartItemUcResp response = coreCartService.updateItem(userId, productId, req);
         return ApiResponse.success(
                 200,
                 "CART.UPDATE_ITEM_SUCCESS",
@@ -71,12 +76,12 @@ public class CartController {
 
     @DeleteMapping("/{userId}/items/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<CartEntity> removeItem(
+    public ApiResponse<String> removeItem(
             @PathVariable("userId") String userId,
             @PathVariable("productId") String productId,
             HttpServletRequest request
     ) {
-        CartEntity response = coreCartService.removeItem(userId, productId);
+        String response = coreCartService.removeItem(userId, productId);
         return ApiResponse.success(
                 200,
                 "CART.REMOVE_ITEM_SUCCESS",
@@ -88,9 +93,20 @@ public class CartController {
     }
 
     @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(@PathVariable("userId") String userId) {
-        coreCartService.clearCart(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<String> clearCart(
+            @PathVariable("userId") String userId,
+            HttpServletRequest request
+    ) {
+        String response = coreCartService.clearCart(userId);
+        return ApiResponse.success(
+                200,
+                "CART.CLEAR_SUCCESS",
+                "Xóa toàn bộ giỏ hàng thành công",
+                response,
+                request.getRequestURI(),
+                null
+        );
     }
 }
 

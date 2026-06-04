@@ -1,4 +1,4 @@
-package x10.Clothing.api.infrastructure.cart.db.mongodb;
+package x10.Clothing.api.service.cartService.addItemToCartUc;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemDocument {
+public class AddItemToCartUcReq {
     private String productId;
     private String productName;
     private String productImage;
@@ -23,6 +23,5 @@ public class CartItemDocument {
     private String sizeName;
 
     private Integer quantity;
-    private BigDecimal unitPrice;
 }
 
