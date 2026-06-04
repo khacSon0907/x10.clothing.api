@@ -8,6 +8,8 @@ import x10.Clothing.api.common.domain.entities.CartEntity;
 import x10.Clothing.api.common.domain.entities.CartItem;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
 import x10.Clothing.api.service.cartService.getCartUc.IGetCartUc;
+import x10.Clothing.api.share.exception.BusinessException;
+import x10.Clothing.api.share.exception.product.ProductError;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,7 +30,7 @@ public class AddItemToCartUcImpl implements IAddItemToCartUc {
         // Validate product exists
         Optional<ProductEntity> productOpt = productRepository.findById(req.getProductId());
         if (productOpt.isEmpty()) {
-            throw new RuntimeException("PRODUCT_NOT_FOUND");
+            throw new BusinessException(ProductError.PRODUCT_NOT_FOUND);
         }
 
         ProductEntity product = productOpt.get();
@@ -134,4 +136,3 @@ public class AddItemToCartUcImpl implements IAddItemToCartUc {
                 .build();
     }
 }
-

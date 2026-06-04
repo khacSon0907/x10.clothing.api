@@ -9,6 +9,20 @@ public enum CartError implements ErrorDescriptor {
             404,
             "CATEGORY.NOT_FOUND",
             "Không tìm thấy danh mục"
+    ),
+
+    CART_NOT_FOUND(
+            "BUSINESS",
+            404,
+            "CART.NOT_FOUND",
+            "Không tìm thấy giỏ hàng"
+    ),
+
+    CART_ITEM_NOT_FOUND(
+            "BUSINESS",
+            404,
+            "CART.ITEM_NOT_FOUND",
+            "Không tìm thấy sản phẩm trong giỏ hàng"
     );
 
     private final String type;

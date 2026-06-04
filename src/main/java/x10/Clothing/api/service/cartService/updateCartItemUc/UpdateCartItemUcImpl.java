@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICartRepository;
 import x10.Clothing.api.common.domain.entities.CartEntity;
 import x10.Clothing.api.common.domain.entities.CartItem;
+import x10.Clothing.api.share.exception.BusinessException;
+import x10.Clothing.api.share.exception.cart.CartError;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -22,13 +24,13 @@ public class UpdateCartItemUcImpl implements IUpdateCartItemUc {
     @Override
     public UpdateCartItemUcResp execute(String userId, String productId, UpdateCartItemUcReq req) {
         CartEntity cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("CART_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(CartError.CART_NOT_FOUND));
 
         List<CartItem> items = cart.getItems() == null ? new ArrayList<>() : new ArrayList<>(cart.getItems());
         Optional<CartItem> existingItem = findCartItem(items, productId, req);
 
         if (existingItem.isEmpty()) {
-            throw new RuntimeException("CART_ITEM_NOT_FOUND");
+            throw new BusinessException(CartError.CART_ITEM_NOT_FOUND);
         }
 
         CartItem item = existingItem.get();
@@ -97,4 +99,3 @@ public class UpdateCartItemUcImpl implements IUpdateCartItemUc {
                 .build();
     }
 }
-
