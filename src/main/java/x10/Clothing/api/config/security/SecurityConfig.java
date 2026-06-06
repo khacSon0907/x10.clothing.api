@@ -155,6 +155,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/banners/**")
                         .permitAll()
 
+                        // Locations public read
+                        .requestMatchers(HttpMethod.GET, "/api/locations/**")
+                        .permitAll()
+
                         // Banners create/update/delete chỉ ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/banners")
                         .hasRole("ADMIN")
