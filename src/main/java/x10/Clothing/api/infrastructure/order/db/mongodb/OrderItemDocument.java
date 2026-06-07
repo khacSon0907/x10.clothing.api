@@ -1,5 +1,4 @@
-package x10.Clothing.api.common.domain.entities;
-
+package x10.Clothing.api.infrastructure.order.db.mongodb;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem {
+public class OrderItemDocument {
     private String productId;
     private String productName;
     private String productImage;
