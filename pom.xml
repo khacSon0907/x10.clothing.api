@@ -26,6 +26,12 @@
 
 	<dependencies>
 
+		<!-- WebSocket -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
 		<!-- payOS Payment SDK -->
 		<dependency>
 			<groupId>vn.payos</groupId>

@@ -51,6 +51,12 @@ public class OrderRepositoryImpl implements IOrderRepository {
     }
 
     @Override
+    public Optional<OrderEntity> findByPayosOrderCode(Long payosOrderCode) {
+        return orderMongoRepository.findByPayosOrderCode(payosOrderCode)
+                .map(OrderMapper::toEntity);
+    }
+
+    @Override
     public void deleteById(String id) {
         orderMongoRepository.deleteById(id);
     }

@@ -158,6 +158,10 @@ public class SecurityConfig {
                         // Locations public read
                         .requestMatchers(HttpMethod.GET, "/api/locations/**")
                         .permitAll()
+                        .requestMatchers("/ws", "/ws/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/payments/payos-webhook")
+                        .permitAll()
 
 
                         // Banners create/update/delete chỉ ADMIN

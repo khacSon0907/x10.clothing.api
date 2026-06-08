@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
+import x10.Clothing.api.common.domain.enums.PaymentMethod;
+import x10.Clothing.api.common.domain.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -25,9 +28,9 @@ public class UpdateOrderRequest {
     @DecimalMin(value = "0.0", message = "So tien giam gia khong duoc am")
     private BigDecimal discountAmount;
 
-    private String paymentMethod;
-    private String paymentStatus;
-    private String status;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
+    private OrderStatus status;
     private String note;
     private String cancelReason;
     private String trackingCode;

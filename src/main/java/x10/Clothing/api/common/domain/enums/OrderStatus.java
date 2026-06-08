@@ -1,18 +1,22 @@
 package x10.Clothing.api.common.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum OrderStatus {
+    PENDING,
+    CONFIRMED,
+    PROCESSING,
+    SHIPPING,
+    DELIVERED,
+    CANCELLED,
+    RETURNED;
 
-    PENDING,      // Chờ xác nhận
+    @JsonCreator
+    public static OrderStatus from(String value) {
+        if (value == null || value.isBlank()) {
+            return PENDING;
+        }
 
-    CONFIRMED,    // Đã xác nhận
-
-    PROCESSING,   // Đang chuẩn bị hàng
-
-    SHIPPING,     // Đang giao hàng
-
-    DELIVERED,    // Đã giao thành công
-
-    CANCELLED,    // Đã hủy
-
-    RETURNED      // Trả hàng
+        return OrderStatus.valueOf(value.trim().toUpperCase());
+    }
 }

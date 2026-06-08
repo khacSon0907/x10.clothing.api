@@ -1,12 +1,19 @@
 package x10.Clothing.api.common.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum PaymentStatus {
+    UNPAID,
+    PAID,
+    REFUNDED,
+    FAILED;
 
-    UNPAID,    // Chưa thanh toán
+    @JsonCreator
+    public static PaymentStatus from(String value) {
+        if (value == null || value.isBlank()) {
+            return UNPAID;
+        }
 
-    PAID,      // Đã thanh toán
-
-    REFUNDED,  // Đã hoàn tiền
-
-    FAILED     // Thanh toán thất bại
+        return PaymentStatus.valueOf(value.trim().toUpperCase());
+    }
 }

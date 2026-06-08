@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
+import x10.Clothing.api.common.domain.enums.PaymentMethod;
+import x10.Clothing.api.common.domain.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +24,7 @@ public class OrderDocument {
     @Id
     private String id;
     private String orderCode;
+    private Long payosOrderCode;
     private String userId;
     private String receiverName;
     private String receiverPhone;
@@ -30,9 +34,9 @@ public class OrderDocument {
     private BigDecimal shippingFee;
     private BigDecimal discountAmount;
     private BigDecimal totalAmount;
-    private String paymentMethod;
-    private String paymentStatus;
-    private String status;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
+    private OrderStatus status;
     private String note;
     private String cancelReason;
     private String trackingCode;

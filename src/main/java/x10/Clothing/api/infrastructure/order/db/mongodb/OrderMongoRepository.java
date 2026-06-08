@@ -9,4 +9,5 @@ public interface OrderMongoRepository extends MongoRepository<OrderDocument, Str
     List<OrderDocument> findAllByOrderByCreatedAtDesc();
     List<OrderDocument> findByUserIdOrderByCreatedAtDesc(String userId);
     Optional<OrderDocument> findByOrderCode(String orderCode);
+    Optional<OrderDocument> findByPayosOrderCode(Long payosOrderCode);
 }

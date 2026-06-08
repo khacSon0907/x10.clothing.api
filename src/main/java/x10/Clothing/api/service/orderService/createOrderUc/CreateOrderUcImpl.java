@@ -7,7 +7,9 @@ import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.common.domain.entities.OrderEntity;
 import x10.Clothing.api.common.domain.entities.OrderItem;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.common.domain.enums.PaymentMethod;
+import x10.Clothing.api.common.domain.enums.PaymentStatus;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.service.paymentService.ICorePaymentService;
@@ -54,7 +56,9 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Tong tien don hang khong hop le");
         }
 
-        String paymentMethod = resolvePaymentMethod(request.getPaymentMethod());
+        PaymentMethod paymentMethod = request.getPaymentMethod() == null
+                ? PaymentMethod.COD
+                : request.getPaymentMethod();
 
         OrderEntity order = OrderEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -69,8 +73,8 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
                 .discountAmount(discountAmount)
                 .totalAmount(totalAmount)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(resolvePaymentStatus(null))
-                .status(resolveOrderStatus(null))
+                .paymentStatus(PaymentStatus.UNPAID)
+                .status(OrderStatus.PENDING)
                 .note(request.getNote())
                 .createdAt(now)
                 .updatedAt(now)
@@ -79,7 +83,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
         OrderEntity savedOrder = orderRepository.save(order);
         OrderResponse response = OrderResponseMapper.toResponse(savedOrder);
 
-        if (PaymentMethod.PAYOS.name().equals(paymentMethod)) {
+        if (PaymentMethod.PAYOS == paymentMethod) {
             CreatePaymentLinkRequest paymentRequest = new CreatePaymentLinkRequest();
             paymentRequest.setOrderId(savedOrder.getId());
             CreatePaymentLinkResponse paymentResponse = paymentService.createPaymentLink(paymentRequest);
@@ -122,55 +126,6 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
 
     private BigDecimal defaultZero(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
-    }
-
-    private String resolvePaymentMethod(String paymentMethod) {
-        if (paymentMethod == null || paymentMethod.isBlank()) {
-            return PaymentMethod.COD.name();
-        }
-
-        String upperPaymentMethod = paymentMethod.trim().toUpperCase();
-        try {
-            return PaymentMethod.valueOf(upperPaymentMethod).name();
-        } catch (IllegalArgumentException ex) {
-            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Phuong thuc thanh toan khong hop le");
-        }
-    }
-
-    private String resolvePaymentStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return "UNPAID";
-        }
-
-        String upperStatus = status.trim().toUpperCase();
-        if (!isValidPaymentStatus(upperStatus)) {
-            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai thanh toan khong hop le");
-        }
-
-        return upperStatus;
-    }
-
-    private String resolveOrderStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return "PENDING";
-        }
-
-        String upperStatus = status.trim().toUpperCase();
-        if (!isValidOrderStatus(upperStatus)) {
-            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai don hang khong hop le");
-        }
-
-        return upperStatus;
-    }
-
-    private boolean isValidPaymentStatus(String status) {
-        return status.equals("UNPAID") || status.equals("PAID") || status.equals("REFUNDED") || status.equals("FAILED");
-    }
-
-    private boolean isValidOrderStatus(String status) {
-        return status.equals("PENDING") || status.equals("CONFIRMED") || status.equals("PROCESSING")
-                || status.equals("SHIPPING") || status.equals("DELIVERED") || status.equals("CANCELLED")
-                || status.equals("RETURNED");
     }
 
     private String generateOrderCode(LocalDateTime now) {

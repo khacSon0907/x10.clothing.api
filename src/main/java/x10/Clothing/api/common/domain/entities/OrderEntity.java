@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
+import x10.Clothing.api.common.domain.enums.PaymentMethod;
+import x10.Clothing.api.common.domain.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +21,7 @@ public class OrderEntity {
 
     private String id;
     private String orderCode;
+    private Long payosOrderCode;
 
     private String userId;
 
@@ -32,10 +36,10 @@ public class OrderEntity {
     private BigDecimal discountAmount;
     private BigDecimal totalAmount;
 
-    private String paymentMethod;
-    private String paymentStatus;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
 
-    private String status;
+    private OrderStatus status;
 
     private String note;
 

@@ -23,6 +23,7 @@ public class OrderResponseMapper {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
+                .payosOrderCode(order.getPayosOrderCode())
                 .userId(order.getUserId())
                 .receiverName(order.getReceiverName())
                 .receiverPhone(order.getReceiverPhone())

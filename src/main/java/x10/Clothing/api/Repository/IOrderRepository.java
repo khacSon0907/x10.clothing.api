@@ -17,5 +17,7 @@ public interface IOrderRepository {
 
     Optional<OrderEntity> findByOrderCode(String orderCode);
 
+    Optional<OrderEntity> findByPayosOrderCode(Long payosOrderCode);
+
     void deleteById(String id);
 }
