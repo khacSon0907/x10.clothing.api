@@ -7,8 +7,6 @@ import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.common.domain.entities.OrderEntity;
 import x10.Clothing.api.common.domain.entities.OrderItem;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
-import x10.Clothing.api.common.domain.enums.OrderStatus;
-import x10.Clothing.api.common.domain.enums.PaymentStatus;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.share.exception.BusinessException;
@@ -136,18 +134,28 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
     }
 
     private String resolvePaymentStatus(String status) {
-        try {
-            return PaymentStatus.valueOf(status.trim().toUpperCase()).name();
-        } catch (IllegalArgumentException ex) {
+        String upperStatus = status.trim().toUpperCase();
+        if (!isValidPaymentStatus(upperStatus)) {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai thanh toan khong hop le");
         }
+        return upperStatus;
     }
 
     private String resolveOrderStatus(String status) {
-        try {
-            return OrderStatus.valueOf(status.trim().toUpperCase()).name();
-        } catch (IllegalArgumentException ex) {
+        String upperStatus = status.trim().toUpperCase();
+        if (!isValidOrderStatus(upperStatus)) {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai don hang khong hop le");
         }
+        return upperStatus;
+    }
+
+    private boolean isValidPaymentStatus(String status) {
+        return status.equals("UNPAID") || status.equals("PAID") || status.equals("REFUNDED") || status.equals("FAILED");
+    }
+
+    private boolean isValidOrderStatus(String status) {
+        return status.equals("PENDING") || status.equals("CONFIRMED") || status.equals("PROCESSING")
+                || status.equals("SHIPPING") || status.equals("DELIVERED") || status.equals("CANCELLED")
+                || status.equals("RETURNED");
     }
 }

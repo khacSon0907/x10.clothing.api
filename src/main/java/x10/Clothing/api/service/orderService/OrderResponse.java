@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import x10.Clothing.api.service.paymentService.createPayment.CreatePaymentLinkResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +35,7 @@ public class OrderResponse {
     private String shippingProvider;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private CreatePaymentLinkResponse payment;
 
     @Data
     @Builder

@@ -7,10 +7,12 @@ import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.common.domain.entities.OrderEntity;
 import x10.Clothing.api.common.domain.entities.OrderItem;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
-import x10.Clothing.api.common.domain.enums.OrderStatus;
-import x10.Clothing.api.common.domain.enums.PaymentStatus;
+import x10.Clothing.api.common.domain.enums.PaymentMethod;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
+import x10.Clothing.api.service.paymentService.ICorePaymentService;
+import x10.Clothing.api.service.paymentService.createPayment.CreatePaymentLinkRequest;
+import x10.Clothing.api.service.paymentService.createPayment.CreatePaymentLinkResponse;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.order.OrderError;
 import x10.Clothing.api.share.exception.product.ProductError;
@@ -30,6 +32,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
 
     private final IOrderRepository orderRepository;
     private final IProductRepository productRepository;
+    private final ICorePaymentService paymentService;
 
     @Override
     public OrderResponse execute(CreateOrderRequest request) {
@@ -51,6 +54,8 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Tong tien don hang khong hop le");
         }
 
+        String paymentMethod = resolvePaymentMethod(request.getPaymentMethod());
+
         OrderEntity order = OrderEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .orderCode(generateOrderCode(now))
@@ -63,15 +68,25 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
                 .shippingFee(shippingFee)
                 .discountAmount(discountAmount)
                 .totalAmount(totalAmount)
-                .paymentMethod(request.getPaymentMethod())
-                .paymentStatus(resolvePaymentStatus(request.getPaymentStatus()))
-                .status(resolveOrderStatus(request.getStatus()))
+                .paymentMethod(paymentMethod)
+                .paymentStatus(resolvePaymentStatus(null))
+                .status(resolveOrderStatus(null))
                 .note(request.getNote())
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
-        return OrderResponseMapper.toResponse(orderRepository.save(order));
+        OrderEntity savedOrder = orderRepository.save(order);
+        OrderResponse response = OrderResponseMapper.toResponse(savedOrder);
+
+        if (PaymentMethod.PAYOS.name().equals(paymentMethod)) {
+            CreatePaymentLinkRequest paymentRequest = new CreatePaymentLinkRequest();
+            paymentRequest.setOrderId(savedOrder.getId());
+            CreatePaymentLinkResponse paymentResponse = paymentService.createPaymentLink(paymentRequest);
+            response.setPayment(paymentResponse);
+        }
+
+        return response;
     }
 
     private OrderItem buildOrderItem(CreateOrderRequest.OrderItemRequest request) {
@@ -109,28 +124,53 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
         return value == null ? BigDecimal.ZERO : value;
     }
 
-    private String resolvePaymentStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return PaymentStatus.UNPAID.name();
+    private String resolvePaymentMethod(String paymentMethod) {
+        if (paymentMethod == null || paymentMethod.isBlank()) {
+            return PaymentMethod.COD.name();
         }
 
+        String upperPaymentMethod = paymentMethod.trim().toUpperCase();
         try {
-            return PaymentStatus.valueOf(status.trim().toUpperCase()).name();
+            return PaymentMethod.valueOf(upperPaymentMethod).name();
         } catch (IllegalArgumentException ex) {
+            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Phuong thuc thanh toan khong hop le");
+        }
+    }
+
+    private String resolvePaymentStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "UNPAID";
+        }
+
+        String upperStatus = status.trim().toUpperCase();
+        if (!isValidPaymentStatus(upperStatus)) {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai thanh toan khong hop le");
         }
+
+        return upperStatus;
     }
 
     private String resolveOrderStatus(String status) {
         if (status == null || status.isBlank()) {
-            return OrderStatus.PENDING.name();
+            return "PENDING";
         }
 
-        try {
-            return OrderStatus.valueOf(status.trim().toUpperCase()).name();
-        } catch (IllegalArgumentException ex) {
+        String upperStatus = status.trim().toUpperCase();
+        if (!isValidOrderStatus(upperStatus)) {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Trang thai don hang khong hop le");
         }
+
+        return upperStatus;
+    }
+
+    private boolean isValidPaymentStatus(String status) {
+        return status.equals("UNPAID") || status.equals("PAID") || status.equals("REFUNDED") || status.equals("FAILED");
+    }
+
+    private boolean isValidOrderStatus(String status) {
+        return status.equals("PENDING") || status.equals("CONFIRMED") || status.equals("PROCESSING")
+                || status.equals("SHIPPING") || status.equals("DELIVERED") || status.equals("CANCELLED")
+                || status.equals("RETURNED");
     }
 
     private String generateOrderCode(LocalDateTime now) {

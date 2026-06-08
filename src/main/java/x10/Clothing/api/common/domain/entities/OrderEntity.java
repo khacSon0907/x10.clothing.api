@@ -44,6 +44,8 @@ public class OrderEntity {
     private String trackingCode;
     private String shippingProvider;
 
+
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

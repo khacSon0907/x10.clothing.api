@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -36,9 +37,9 @@ public class CreateOrderRequest {
     @DecimalMin(value = "0.0", message = "So tien giam gia khong duoc am")
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
-    private String paymentMethod;
-    private String paymentStatus;
-    private String status;
+    @Pattern(regexp = "(?i)COD|PAYOS|MOMO", message = "Phuong thuc thanh toan khong hop le")
+    private String paymentMethod = "COD";
+
     private String note;
 
     @Data
