@@ -13,6 +13,9 @@ public class CategoryMapper {
                 .slug(doc.getSlug())
                 .description(doc.getDescription())
                 .active(doc.isActive())
+                .bannerUrl(doc.getBannerUrl())
+                .createdAt(doc.getCreatedAt())
+                .updatedAt(doc.getUpdatedAt())
                 .build();
     }
 
@@ -24,6 +27,7 @@ public class CategoryMapper {
                 .slug(entity.getSlug())
                 .description(entity.getDescription())
                 .active(entity.isActive())
+                .bannerUrl(entity.getBannerUrl())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

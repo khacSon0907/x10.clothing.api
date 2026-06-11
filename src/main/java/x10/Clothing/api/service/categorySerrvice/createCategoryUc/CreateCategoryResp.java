@@ -15,5 +15,6 @@ public class CreateCategoryResp {
     private String slug;
     private String description;
     private boolean active;
+    private String bannerUrl;
 }
 

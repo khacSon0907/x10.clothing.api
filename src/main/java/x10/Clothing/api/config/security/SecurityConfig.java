@@ -155,6 +155,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/banners/**")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/promotion-banners/**")
+                        .permitAll()
+
                         // Locations public read
                         .requestMatchers(HttpMethod.GET, "/api/locations/**")
                         .permitAll()
@@ -170,6 +173,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/banners/**")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/banners/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/promotion-banners")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/promotion-banners/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/promotion-banners/**")
                         .hasRole("ADMIN")
 
                         // Các API auth còn lại cần login

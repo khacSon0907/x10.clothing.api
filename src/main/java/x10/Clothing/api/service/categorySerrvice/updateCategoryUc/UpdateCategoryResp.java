@@ -16,6 +16,7 @@ public class UpdateCategoryResp {
     private String slug;
     private String name;
     private String id;
+    private String bannerUrl;
 }
 
 

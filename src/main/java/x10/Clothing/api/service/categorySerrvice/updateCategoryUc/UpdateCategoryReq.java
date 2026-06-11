@@ -23,6 +23,8 @@ public class UpdateCategoryReq {
     @Size(max = 1000, message = "Description không được vượt quá 1000 ký tự")
     private String description;
 
+    private String bannerUrl;
+
     private Boolean active;
 }
 

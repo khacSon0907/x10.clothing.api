@@ -47,6 +47,10 @@ public class UpdateCategoryImpl implements IUpdateCategoryUc {
             entity.setDescription(req.getDescription());
         }
 
+        if (req.getBannerUrl() != null) {
+            entity.setBannerUrl(req.getBannerUrl());
+        }
+
         if (req.getActive() != null) {
             entity.setActive(req.getActive());
         }
@@ -61,6 +65,7 @@ public class UpdateCategoryImpl implements IUpdateCategoryUc {
                 .slug(saved.getSlug())
                 .description(saved.getDescription())
                 .active(saved.isActive())
+                .bannerUrl(saved.getBannerUrl())
                 .build();
     }
 

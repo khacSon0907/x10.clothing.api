@@ -24,6 +24,7 @@ public class GetCategoriesImpl implements IGetCategoriesUc {
                 .slug(c.getSlug())
                 .description(c.getDescription())
                 .active(c.isActive())
+                .bannerUrl(c.getBannerUrl())
                 .build()
         ).collect(Collectors.toList());
     }

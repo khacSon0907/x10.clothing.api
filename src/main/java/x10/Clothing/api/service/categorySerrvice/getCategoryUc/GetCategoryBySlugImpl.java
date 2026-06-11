@@ -22,6 +22,7 @@ public class GetCategoryBySlugImpl implements IGetCategoryBySlugUc {
                         .slug(c.getSlug())
                         .description(c.getDescription())
                         .active(c.isActive())
+                        .bannerUrl(c.getBannerUrl())
                         .build())
                 .orElseThrow(() -> new BusinessException(CategoryError.CATEGORY_NOT_FOUND));
     }

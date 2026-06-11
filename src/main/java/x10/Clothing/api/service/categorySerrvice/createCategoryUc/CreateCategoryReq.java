@@ -19,6 +19,8 @@ public class CreateCategoryReq {
 
     private String description;
 
+    private String bannerUrl;
+
     private Boolean active;
 }
 

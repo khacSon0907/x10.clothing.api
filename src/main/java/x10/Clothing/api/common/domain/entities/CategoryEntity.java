@@ -19,6 +19,8 @@ public class CategoryEntity {
     private String  slug;
     // active / hidden
     private boolean active;
+    // Banner của danh mục
+    private String bannerUrl;
 
     private Instant createdAt;
     private Instant updatedAt;

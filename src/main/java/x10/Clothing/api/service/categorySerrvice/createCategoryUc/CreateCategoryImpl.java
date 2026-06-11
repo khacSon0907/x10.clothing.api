@@ -40,6 +40,7 @@ public class CreateCategoryImpl implements ICreateCategoryUc {
                 .name(req.getName().trim())
                 .slug(finalSlug)
                 .description(req.getDescription())
+                .bannerUrl(req.getBannerUrl())
                 .active(req.getActive() == null || req.getActive())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
@@ -53,6 +54,7 @@ public class CreateCategoryImpl implements ICreateCategoryUc {
                 .slug(saved.getSlug())
                 .description(saved.getDescription())
                 .active(saved.isActive())
+                .bannerUrl(saved.getBannerUrl())
                 .build();
     }
 

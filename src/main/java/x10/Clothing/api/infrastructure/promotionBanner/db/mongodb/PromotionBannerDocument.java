@@ -1,4 +1,4 @@
-package x10.Clothing.api.infrastructure.category.db.mongodb;
+package x10.Clothing.api.infrastructure.promotionBanner.db.mongodb;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +13,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "categories")
-public class CategoryDocument {
+@Document(collection = "promotion_banners")
+public class PromotionBannerDocument {
     @Id
     private String id;
-    private String name;
-    private String slug;
-    private String description;
+    private String title;
     private boolean active;
-    private String bannerUrl;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private Integer sortOrder;
+    private Instant startDate;
+    private Instant endDate;
 }
-
