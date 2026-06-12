@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -38,9 +36,12 @@ public class UserEntity {
     private boolean emailVerified;
 
     private LocalDateTime verifiedAt;
-
-    private Set<UserRole> roles;
-
+    /**
+     * Danh sách role của user
+     * VD: ["ADMIN"]
+     * VD: ["STAFF", "USER"]
+     */
+    private List<String> roleIds;
 
     private Instant createdAt;
 

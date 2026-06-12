@@ -31,7 +31,7 @@ public class GetAllUsersUcImpl implements IGetAllUsersUc {
                         .verifiedAt(user.getVerifiedAt())
                         .avatarUrl(user.getAvatarUrl())
                         .providerType(user.getProviderType())
-                        .roles(user.getRoles())
+                        .roleIds(user.getRoleIds())
                         .build())
                 .collect(Collectors.toList());
     }

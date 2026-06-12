@@ -8,16 +8,15 @@ import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.common.domain.entities.UserEntity;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.jwt.IJwtService;
 import x10.Clothing.api.config.redis.IRedisService;
+import x10.Clothing.api.service.roleService.RoleResolver;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
 import java.time.Duration;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +27,7 @@ public class LoginUcImpl implements ILoginUc {
     private final PasswordEncoder passwordEncoder;
     private final IRedisService redisService;
     private final IJwtService jwtService;
+    private final RoleResolver roleResolver;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final Duration LOCK_DURATION = Duration.ofMinutes(5);
@@ -82,22 +82,16 @@ public class LoginUcImpl implements ILoginUc {
         }
 
         // 8. Build roles
-        Set<UserRole> roles = user.getRoles();
-
-        if (roles == null || roles.isEmpty()) {
-            roles = Set.of(UserRole.USER);
-        }
-
-        String roleStr = roles.stream()
-                .map(Enum::name)
-                .collect(Collectors.joining(","));
+        List<String> roleIds = normalizeRoleIds(user.getRoleIds());
+        List<String> roles = roleResolver.resolveRoleCodes(roleIds);
 
         // 9. Build token payload
         TokenPayload payload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(roleStr)
+                .roleIds(roleIds)
+                .roles(roles)
                 .build();
 
         // 10. Generate tokens
@@ -109,6 +103,7 @@ public class LoginUcImpl implements ILoginUc {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .roleIds(roleIds)
                 .roles(roles)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -130,5 +125,18 @@ public class LoginUcImpl implements ILoginUc {
         // LOCAL: cho login bằng email/password
         // LOCAL_GOOGLE: cho login bằng email/password và Google
         // null: cho đi tiếp để tương thích data cũ
+    }
+
+    private List<String> normalizeRoleIds(List<String> roleIds) {
+        if (roleIds == null || roleIds.isEmpty()) {
+            return roleResolver.getDefaultRoleIds();
+        }
+
+        List<String> normalizedRoleIds = roleIds.stream()
+                .map(String::trim)
+                .filter(roleId -> !roleId.isEmpty())
+                .toList();
+
+        return normalizedRoleIds.isEmpty() ? roleResolver.getDefaultRoleIds() : normalizedRoleIds;
     }
 }

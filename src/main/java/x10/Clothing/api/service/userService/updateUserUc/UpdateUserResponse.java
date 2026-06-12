@@ -5,12 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,6 +27,6 @@ public class UpdateUserResponse {
     private LocalDateTime verifiedAt;
     private String avatarUrl;
     private AuthProvider providerType;
-    private Set<UserRole> roles;
+    private List<String> roleIds;
 }
 

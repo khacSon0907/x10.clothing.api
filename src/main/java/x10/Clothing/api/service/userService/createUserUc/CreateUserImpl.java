@@ -7,18 +7,17 @@ import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.entities.UserEntity;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.redis.IRedisService;
 import x10.Clothing.api.service.notification.OtpGenerator;
 import x10.Clothing.api.service.notification.event.RegisterOtpEvent;
+import x10.Clothing.api.service.roleService.RoleResolver;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -36,6 +35,8 @@ public class CreateUserImpl implements ICreateUserUc {
         private final OtpGenerator otpGenerator;
 
         private final ApplicationEventPublisher eventPublisher;
+
+        private final RoleResolver roleResolver;
 
         @Override
         public UserEntity createUser(CreateUserReq req) {
@@ -70,10 +71,10 @@ public class CreateUserImpl implements ICreateUserUc {
 
                                 user.setEmailVerified(false);
 
-                                if (user.getRoles() == null
-                                        || user.getRoles().isEmpty()) {
+                                if (user.getRoleIds() == null
+                                        || user.getRoleIds().isEmpty()) {
 
-                                        user.setRoles(Set.of(UserRole.USER));
+                                        user.setRoleIds(roleResolver.getDefaultRoleIds());
                                 }
 
                                 user.setUpdatedAt(Instant.now());
@@ -133,10 +134,10 @@ public class CreateUserImpl implements ICreateUserUc {
                                         user.setUsername(req.getUsername());
                                 }
 
-                                if (user.getRoles() == null
-                                        || user.getRoles().isEmpty()) {
+                                if (user.getRoleIds() == null
+                                        || user.getRoleIds().isEmpty()) {
 
-                                        user.setRoles(Set.of(UserRole.USER));
+                                        user.setRoleIds(roleResolver.getDefaultRoleIds());
                                 }
 
                                 user.setStatus(UserStatus.ACTIVE);
@@ -168,7 +169,7 @@ public class CreateUserImpl implements ICreateUserUc {
                         .providerType(AuthProvider.LOCAL)
                         .status(UserStatus.PENDING)
                         .emailVerified(false)
-                        .roles(Set.of(UserRole.USER))
+                        .roleIds(roleResolver.getDefaultRoleIds())
                         .createdAt(Instant.now())
                         .updatedAt(Instant.now())
                         .build();

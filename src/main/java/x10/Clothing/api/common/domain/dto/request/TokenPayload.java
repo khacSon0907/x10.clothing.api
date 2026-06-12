@@ -5,13 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TokenPayload {
     private String userId;
-    private String role;
+    private List<String> roleIds;
+    private List<String> roles;
     private String username;
     private String email;
 

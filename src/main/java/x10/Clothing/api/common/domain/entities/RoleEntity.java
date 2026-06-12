@@ -1,0 +1,25 @@
+package x10.Clothing.api.common.domain.entities;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleEntity {
+
+    private String id;
+
+    // ADMIN, STAFF, USER, MANAGER,...
+    private String code;
+
+    // Tên hiển thị
+    private String name;
+
+    private String description;
+
+    private boolean active;
+}

@@ -16,5 +16,7 @@ public interface ICoreUserService {
 
     UpdateUserResponse updateUser(String userId, UpdateUserRequest request);
 
+    UpdateUserResponse updateUserRoles(String userId, List<String> roleIds);
+
     List<GetAllUsersResponse> getAllUsers();
 }

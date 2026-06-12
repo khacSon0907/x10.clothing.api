@@ -26,7 +26,7 @@ public class UserMapper {
                 .providerType(document.getProviderType())
 
                 // ROLE
-                .roles(document.getRoles())
+                .roleIds(document.getRoleIds())
 
                 .build();
     }
@@ -52,7 +52,7 @@ public class UserMapper {
                 .providerType(entity.getProviderType())
 
                 // ROLE
-                .roles(entity.getRoles())
+                .roleIds(entity.getRoleIds())
 
                 .build();
     }

@@ -1,6 +1,7 @@
 package x10.Clothing.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import x10.Clothing.api.service.userService.getAllUsersUc.GetAllUsersResponse;
 import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserRequest;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserResponse;
+import x10.Clothing.api.service.userService.updateUserRolesUc.UpdateUserRolesRequest;
 import x10.Clothing.api.share.response.ApiResponse;
 
 import java.util.List;
@@ -70,6 +72,25 @@ public class UserController {
                 "Lấy danh sách người dùng thành công",
                 response,
                 request.getRequestURI(),
+                null
+        );
+    }
+
+    @PutMapping("/{id}/roles")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<UpdateUserResponse> updateUserRoles(
+            @PathVariable("id") String id,
+            @Valid @RequestBody UpdateUserRolesRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        UpdateUserResponse response = coreUserService.updateUserRoles(id, request.getRoleIds());
+
+        return ApiResponse.success(
+                200,
+                "USER.UPDATE_ROLES_SUCCESS",
+                "Cap nhat role cua user thanh cong",
+                response,
+                httpRequest.getRequestURI(),
                 null
         );
     }

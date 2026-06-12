@@ -16,7 +16,6 @@ import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.config.redis.IRedisService;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,8 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 List<SimpleGrantedAuthority> authorities = List.of();
 
-                if (tokenPayload.getRole() != null && !tokenPayload.getRole().trim().isEmpty()) {
-                    authorities = Arrays.stream(tokenPayload.getRole().split(","))
+                if (tokenPayload.getRoles() != null && !tokenPayload.getRoles().isEmpty()) {
+                    authorities = tokenPayload.getRoles().stream()
                             .map(String::trim)
                             .filter(role -> !role.isEmpty())
                             .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)

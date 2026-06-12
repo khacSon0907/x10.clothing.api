@@ -51,7 +51,7 @@ public class UpdateUserUcImpl implements IUpdateUserUc {
                 .verifiedAt(updatedUser.getVerifiedAt())
                 .avatarUrl(updatedUser.getAvatarUrl())
                 .providerType(updatedUser.getProviderType())
-                .roles(updatedUser.getRoles())
+                .roleIds(updatedUser.getRoleIds())
                 .build();
     }
 }

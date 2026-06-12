@@ -5,12 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -41,5 +40,5 @@ public class GetMeResponse {
     private AuthProvider providerType;
 
     // ROLE
-    private Set<UserRole> roles;
+    private List<String> roleIds;
 }

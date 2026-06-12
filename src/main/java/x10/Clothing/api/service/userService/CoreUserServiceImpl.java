@@ -13,6 +13,7 @@ import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;
 import x10.Clothing.api.service.userService.updateUserUc.IUpdateUserUc;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserRequest;
 import x10.Clothing.api.service.userService.updateUserUc.UpdateUserResponse;
+import x10.Clothing.api.service.userService.updateUserRolesUc.IUpdateUserRolesUc;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class CoreUserServiceImpl implements ICoreUserService{
     private final ICreateUserUc createUserUC;
     private final IGetMeUc getMeUc;
     private final IUpdateUserUc updateUserUc;
+    private final IUpdateUserRolesUc updateUserRolesUc;
     private final IGetAllUsersUc getAllUsersUc;
 
     @Override
@@ -38,6 +40,11 @@ public class CoreUserServiceImpl implements ICoreUserService{
     @Override
     public UpdateUserResponse updateUser(String userId, UpdateUserRequest request) {
         return updateUserUc.updateUser(userId, request);
+    }
+
+    @Override
+    public UpdateUserResponse updateUserRoles(String userId, List<String> roleIds) {
+        return updateUserRolesUc.updateUserRoles(userId, roleIds);
     }
 
     @Override

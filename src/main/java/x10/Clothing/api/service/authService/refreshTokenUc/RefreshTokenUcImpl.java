@@ -10,10 +10,11 @@ import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.jwt.IJwtService;
 import x10.Clothing.api.config.redis.IRedisService;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
+import x10.Clothing.api.service.roleService.RoleResolver;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class RefreshTokenUcImpl implements IRefreshTokenUc {
     private final IUserRepository userRepository;
     private final IRedisService redisService;
     private final IJwtService jwtService;
+    private final RoleResolver roleResolver;
 
     @Override
     public LoginResponse refreshToken(String refreshToken) {
@@ -64,19 +66,22 @@ public class RefreshTokenUcImpl implements IRefreshTokenUc {
         }
 
         // 7. Tạo Access Token mới và Refresh Token mới (Xoay vòng token)
-        // Prefer roles from user entity (more authoritative). If not available, use role from token payload, else default to USER.
-        String roleStr = "USER";
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-            roleStr = user.getRoles().stream().map(Enum::name).collect(Collectors.joining(","));
-        } else if (payload.getRole() != null && !payload.getRole().trim().isEmpty()) {
-            roleStr = payload.getRole();
+        // Prefer roles from user entity (more authoritative). If not available, use roles from token payload, else default to USER.
+        List<String> roleIds = normalizeRoleIds(user.getRoleIds());
+        List<String> roles = roleResolver.resolveRoleCodes(roleIds);
+
+        if ((user.getRoleIds() == null || user.getRoleIds().isEmpty())
+                && payload.getRoles() != null
+                && !payload.getRoles().isEmpty()) {
+            roles = normalizeRoles(payload.getRoles());
         }
 
         TokenPayload newPayload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(roleStr)
+                .roleIds(roleIds)
+                .roles(roles)
                 .build();
 
         String newAccessToken = jwtService.generateAccessToken(newPayload);
@@ -98,8 +103,32 @@ public class RefreshTokenUcImpl implements IRefreshTokenUc {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .roleIds(roleIds)
+                .roles(roles)
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+    private List<String> normalizeRoles(List<String> roles) {
+        List<String> normalizedRoles = roles.stream()
+                .map(String::trim)
+                .filter(role -> !role.isEmpty())
+                .toList();
+
+        return normalizedRoles.isEmpty() ? List.of("USER") : normalizedRoles;
+    }
+
+    private List<String> normalizeRoleIds(List<String> roleIds) {
+        if (roleIds == null || roleIds.isEmpty()) {
+            return roleResolver.getDefaultRoleIds();
+        }
+
+        List<String> normalizedRoleIds = roleIds.stream()
+                .map(String::trim)
+                .filter(roleId -> !roleId.isEmpty())
+                .toList();
+
+        return normalizedRoleIds.isEmpty() ? roleResolver.getDefaultRoleIds() : normalizedRoleIds;
     }
 }

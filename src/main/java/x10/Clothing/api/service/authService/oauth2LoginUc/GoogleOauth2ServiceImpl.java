@@ -8,17 +8,16 @@ import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 import x10.Clothing.api.common.domain.entities.UserEntity;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 import x10.Clothing.api.config.jwt.IJwtService;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
+import x10.Clothing.api.service.roleService.RoleResolver;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,6 +27,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
 
     private final IUserRepository userRepository;
     private final IJwtService jwtService;
+    private final RoleResolver roleResolver;
 
     @Override
     public LoginResponse loginWithGoogle(OAuth2User oauth2User) {
@@ -64,24 +64,22 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
         }
 
         // Nếu roles bị null/rỗng thì set USER
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            Set<UserRole> roles = new HashSet<>();
-            roles.add(UserRole.USER);
-            user.setRoles(roles);
+        if (user.getRoleIds() == null || user.getRoleIds().isEmpty()) {
+            user.setRoleIds(roleResolver.getDefaultRoleIds());
         }
 
         user.setUpdatedAt(Instant.now());
         user = userRepository.save(user);
 
-        String roleString = user.getRoles() != null && !user.getRoles().isEmpty()
-                ? user.getRoles().iterator().next().name()
-                : UserRole.USER.name();
+        List<String> roleIds = normalizeRoleIds(user.getRoleIds());
+        List<String> roles = roleResolver.resolveRoleCodes(roleIds);
 
         TokenPayload tokenPayload = TokenPayload.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(roleString)
+                .roleIds(roleIds)
+                .roles(roles)
                 .build();
 
         String accessToken = jwtService.generateAccessToken(tokenPayload);
@@ -93,7 +91,8 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .roles(user.getRoles())
+                .roleIds(roleIds)
+                .roles(roles)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -155,9 +154,6 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
         String userId = UUID.randomUUID().toString();
         String username = generateUsernameFromEmail(googleUserInfo.getEmail());
 
-        Set<UserRole> roles = new HashSet<>();
-        roles.add(UserRole.USER);
-
         UserEntity newUser = UserEntity.builder()
                 .id(userId)
                 .username(username)
@@ -168,7 +164,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
                 .verifiedAt(LocalDateTime.now())
                 .avatarUrl(googleUserInfo.getPicture())
                 .providerType(AuthProvider.GOOGLE)
-                .roles(roles)
+                .roleIds(roleResolver.getDefaultRoleIds())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -182,5 +178,18 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
 
     private String generateUsernameFromEmail(String email) {
         return email.split("@")[0];
+    }
+
+    private List<String> normalizeRoleIds(List<String> roleIds) {
+        if (roleIds == null || roleIds.isEmpty()) {
+            return roleResolver.getDefaultRoleIds();
+        }
+
+        List<String> normalizedRoleIds = roleIds.stream()
+                .map(String::trim)
+                .filter(roleId -> !roleId.isEmpty())
+                .toList();
+
+        return normalizedRoleIds.isEmpty() ? roleResolver.getDefaultRoleIds() : normalizedRoleIds;
     }
 }

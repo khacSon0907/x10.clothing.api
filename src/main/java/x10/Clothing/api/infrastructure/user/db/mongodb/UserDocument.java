@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.Document;
 import x10.Clothing.api.common.domain.enums.AuthProvider;
-import x10.Clothing.api.common.domain.enums.UserRole;
 import x10.Clothing.api.common.domain.enums.UserStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -47,5 +47,9 @@ public class UserDocument {
     private AuthProvider providerType;
 
     // ROLE
-    private Set<UserRole> roles;
+    private List<String> roleIds;
+
+    @Deprecated
+    @Field("roles")
+    private List<String> legacyRoles;
 }

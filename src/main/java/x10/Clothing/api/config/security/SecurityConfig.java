@@ -190,11 +190,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/me")
                         .authenticated()
 
-                        .requestMatchers(HttpMethod.PUT, "/api/users/me")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/me/update")
                         .authenticated()
 
                         // Chỉ ADMIN xem toàn bộ user
-                        .requestMatchers(HttpMethod.GET, "/api/users")
+                        .requestMatchers(HttpMethod.GET, "/api/users/all")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/roles")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/roles/**")
                         .hasRole("ADMIN")
 
                         // Những request còn lại cần login

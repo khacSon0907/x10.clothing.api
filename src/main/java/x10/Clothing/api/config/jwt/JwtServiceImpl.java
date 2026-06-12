@@ -9,6 +9,7 @@ import x10.Clothing.api.common.domain.dto.request.TokenPayload;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -33,7 +34,8 @@ public class JwtServiceImpl implements IJwtService {
                 .setSubject(payload.getUserId())
                 .claim("username", payload.getUsername())
                 .claim("email", payload.getEmail())
-                .claim("role", payload.getRole())
+                .claim("roleIds", payload.getRoleIds())
+                .claim("roles", payload.getRoles())
                 .claim("type", "ACCESS")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -53,7 +55,8 @@ public class JwtServiceImpl implements IJwtService {
                 .setSubject(payload.getUserId())
                 .claim("username", payload.getUsername())
                 .claim("email", payload.getEmail())
-                .claim("role", payload.getRole())
+                .claim("roleIds", payload.getRoleIds())
+                .claim("roles", payload.getRoles())
                 .claim("type", "REFRESH")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -91,7 +94,8 @@ public class JwtServiceImpl implements IJwtService {
                     .userId(claims.getSubject())
                     .username(claims.get("username", String.class))
                     .email(claims.get("email", String.class))
-                    .role(claims.get("role", String.class))
+                    .roleIds(extractRoleIds(claims))
+                    .roles(extractRoles(claims))
                     .build();
 
         } catch (ExpiredJwtException e) {
@@ -104,6 +108,44 @@ public class JwtServiceImpl implements IJwtService {
             log.error("JWT token không hợp lệ", e);
             throw new RuntimeException("Token không hợp lệ");
         }
+    }
+
+    private List<String> extractRoleIds(Claims claims) {
+        Object roleIdsClaim = claims.get("roleIds");
+
+        if (roleIdsClaim instanceof List<?> roleIds) {
+            return roleIds.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(String::trim)
+                    .filter(roleId -> !roleId.isEmpty())
+                    .toList();
+        }
+
+        return List.of();
+    }
+
+    private List<String> extractRoles(Claims claims) {
+        Object rolesClaim = claims.get("roles");
+
+        if (rolesClaim instanceof List<?> roles) {
+            return roles.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(String::trim)
+                    .filter(role -> !role.isEmpty())
+                    .toList();
+        }
+
+        String legacyRoleClaim = claims.get("role", String.class);
+        if (legacyRoleClaim == null || legacyRoleClaim.isBlank()) {
+            return List.of();
+        }
+
+        return List.of(legacyRoleClaim.split(",")).stream()
+                .map(String::trim)
+                .filter(role -> !role.isEmpty())
+                .toList();
     }
 
 
