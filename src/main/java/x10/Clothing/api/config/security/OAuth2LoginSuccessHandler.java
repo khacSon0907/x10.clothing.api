@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
 import x10.Clothing.api.service.authService.oauth2LoginUc.GoogleOauth2Service;
@@ -49,12 +48,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 maxAgeSeconds
         );
 
-        String redirectUrl = UriComponentsBuilder
-                .fromUriString(frontendUrl + "/oauth2/success")
-                .queryParam("accessToken", loginResponse.getAccessToken())
-                .build()
-                .toUriString();
-
-        response.sendRedirect(redirectUrl);
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Pragma", "no-cache");
+        response.sendRedirect(frontendUrl + "/oauth2/success");
     }
 }
