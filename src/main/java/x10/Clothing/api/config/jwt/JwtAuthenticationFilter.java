@@ -53,8 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             TokenPayload tokenPayload = jwtService.validateAccessToken(token);
 
-            if (tokenPayload.getUserId() != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (tokenPayload.getUserId() != null) {
 
                 List<SimpleGrantedAuthority> authorities = List.of();
 

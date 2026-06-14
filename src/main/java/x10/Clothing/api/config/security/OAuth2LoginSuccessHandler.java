@@ -1,6 +1,7 @@
 package x10.Clothing.api.config.security;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
+        invalidateOAuth2Session(request);
         response.sendRedirect(buildSuccessRedirectUrl(loginResponse));
+    }
+
+    private void invalidateOAuth2Session(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
     private String buildSuccessRedirectUrl(LoginResponse loginResponse) {
