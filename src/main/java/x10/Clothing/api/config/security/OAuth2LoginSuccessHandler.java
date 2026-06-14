@@ -15,6 +15,8 @@ import x10.Clothing.api.service.authService.oauth2LoginUc.GoogleOauth2Service;
 import x10.Clothing.api.util.CookieUtil;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final GoogleOauth2Service googleOauth2Service;
     private final JwtProperties jwtProperties;
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:https://polo-man.vercel.app}")
     private String frontendUrl;
 
     @Override
@@ -50,6 +52,19 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
-        response.sendRedirect(frontendUrl + "/oauth2/success");
+        response.sendRedirect(buildSuccessRedirectUrl(loginResponse));
+    }
+
+    private String buildSuccessRedirectUrl(LoginResponse loginResponse) {
+        String accessToken = encode(loginResponse.getAccessToken());
+        String refreshToken = encode(loginResponse.getRefreshToken());
+
+        return frontendUrl + "/oauth2/success"
+                + "#accessToken=" + accessToken
+                + "&refreshToken=" + refreshToken;
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }
