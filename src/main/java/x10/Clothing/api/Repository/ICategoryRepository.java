@@ -11,6 +11,8 @@ public interface ICategoryRepository {
     Optional<CategoryEntity> findByName(String name);
     Optional<CategoryEntity> findById(String id);
     List<CategoryEntity> findAll();
+    List<CategoryEntity> findByParentId(String parentId);
+    boolean existsByParentId(String parentId);
     void deleteById(String id);
 
     // dùng để check duplicate không phân biệt hoa thường

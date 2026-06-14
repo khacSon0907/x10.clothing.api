@@ -7,13 +7,31 @@ public enum CategoryError implements ErrorDescriptor {
             "BUSINESS",
             409,
             "CATEGORY.EXISTS",
-            "Danh mục đã tồn tại"
+            "Danh muc da ton tai"
     ),
     CATEGORY_NOT_FOUND(
             "BUSINESS",
             404,
             "CATEGORY.NOT_FOUND",
-            "Không tìm thấy danh mục"
+            "Khong tim thay danh muc"
+    ),
+    CATEGORY_HAS_CHILDREN(
+            "BUSINESS",
+            409,
+            "CATEGORY.HAS_CHILDREN",
+            "Khong the xoa danh muc khi con danh muc con"
+    ),
+    CATEGORY_INVALID_PARENT(
+            "BUSINESS",
+            400,
+            "CATEGORY.INVALID_PARENT",
+            "Parent category khong hop le"
+    ),
+    CATEGORY_CYCLE_DETECTED(
+            "BUSINESS",
+            400,
+            "CATEGORY.CYCLE_DETECTED",
+            "Khong the tao vong lap category"
     );
 
     private final String type;
@@ -40,4 +58,3 @@ public enum CategoryError implements ErrorDescriptor {
     @Override
     public String type() { return type; }
 }
-

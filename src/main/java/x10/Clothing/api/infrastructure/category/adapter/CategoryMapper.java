@@ -14,6 +14,8 @@ public class CategoryMapper {
                 .description(doc.getDescription())
                 .active(doc.isActive())
                 .bannerUrl(doc.getBannerUrl())
+                .parentId(doc.getParentId())
+                .sortOrder(doc.getSortOrder())
                 .createdAt(doc.getCreatedAt())
                 .updatedAt(doc.getUpdatedAt())
                 .build();
@@ -28,6 +30,8 @@ public class CategoryMapper {
                 .description(entity.getDescription())
                 .active(entity.isActive())
                 .bannerUrl(entity.getBannerUrl())
+                .parentId(entity.getParentId())
+                .sortOrder(entity.getSortOrder())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

@@ -3,9 +3,18 @@ package x10.Clothing.api.service.categorySerrvice.getCategoryUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICategoryRepository;
+import x10.Clothing.api.common.domain.entities.CategoryEntity;
+import x10.Clothing.api.service.categorySerrvice.CategoryResponseMapper;
 import x10.Clothing.api.service.categorySerrvice.createCategoryUc.CreateCategoryResp;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.category.CategoryError;
+
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,16 +24,31 @@ public class GetCategoryBySlugImpl implements IGetCategoryBySlugUc {
 
     @Override
     public CreateCategoryResp getBySlug(String slug) {
-        return categoryRepository.findBySlug(slug)
-                .map(c -> CreateCategoryResp.builder()
-                        .id(c.getId())
-                        .name(c.getName())
-                        .slug(c.getSlug())
-                        .description(c.getDescription())
-                        .active(c.isActive())
-                        .bannerUrl(c.getBannerUrl())
-                        .build())
+        CategoryEntity category = categoryRepository.findBySlug(slug)
                 .orElseThrow(() -> new BusinessException(CategoryError.CATEGORY_NOT_FOUND));
+
+        return toTree(category, new HashSet<>());
+    }
+
+    private CreateCategoryResp toTree(CategoryEntity category, Set<String> visited) {
+        if (!visited.add(category.getId())) {
+            throw new BusinessException(CategoryError.CATEGORY_CYCLE_DETECTED);
+        }
+
+        List<CreateCategoryResp> children = categoryRepository.findByParentId(category.getId())
+                .stream()
+                .sorted(categoryComparator())
+                .map(child -> toTree(child, new HashSet<>(visited)))
+                .collect(Collectors.toList());
+
+        return CategoryResponseMapper.toCreateResp(category, children);
+    }
+
+    private Comparator<CategoryEntity> categoryComparator() {
+        return Comparator
+                .comparing((CategoryEntity category) -> Objects.requireNonNullElse(category.getSortOrder(), 0))
+                .thenComparing(CategoryEntity::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(CategoryEntity::getId, Comparator.nullsLast(String::compareTo));
     }
 }
 

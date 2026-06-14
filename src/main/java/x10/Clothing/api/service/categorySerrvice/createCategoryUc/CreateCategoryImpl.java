@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICategoryRepository;
 import x10.Clothing.api.common.domain.entities.CategoryEntity;
+import x10.Clothing.api.service.categorySerrvice.CategoryResponseMapper;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.category.CategoryError;
 
 import java.text.Normalizer;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -34,6 +37,9 @@ public class CreateCategoryImpl implements ICreateCategoryUc {
 
         // ensure unique slug
         String finalSlug = generateUniqueSlug(baseSlug);
+        String parentId = normalizeParentId(req.getParentId());
+        validateParentExistsAndHasNoCycle(parentId);
+        Instant now = Instant.now();
 
         CategoryEntity entity = CategoryEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -42,20 +48,15 @@ public class CreateCategoryImpl implements ICreateCategoryUc {
                 .description(req.getDescription())
                 .bannerUrl(req.getBannerUrl())
                 .active(req.getActive() == null || req.getActive())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
+                .parentId(parentId)
+                .sortOrder(req.getSortOrder() == null ? 0 : req.getSortOrder())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
 
         CategoryEntity saved = categoryRepository.save(entity);
 
-        return CreateCategoryResp.builder()
-                .id(saved.getId())
-                .name(saved.getName())
-                .slug(saved.getSlug())
-                .description(saved.getDescription())
-                .active(saved.isActive())
-                .bannerUrl(saved.getBannerUrl())
-                .build();
+        return CategoryResponseMapper.toCreateResp(saved);
     }
 
     /**
@@ -124,6 +125,32 @@ public class CreateCategoryImpl implements ICreateCategoryUc {
 
         if (req.getName() == null || req.getName().isBlank()) {
             throw new IllegalArgumentException("Category name is required");
+        }
+    }
+
+    private String normalizeParentId(String parentId) {
+        if (parentId == null || parentId.isBlank()) {
+            return null;
+        }
+        return parentId.trim();
+    }
+
+    private void validateParentExistsAndHasNoCycle(String parentId) {
+        if (parentId == null) {
+            return;
+        }
+
+        Set<String> visited = new HashSet<>();
+        String currentParentId = parentId;
+
+        while (currentParentId != null) {
+            if (!visited.add(currentParentId)) {
+                throw new BusinessException(CategoryError.CATEGORY_CYCLE_DETECTED);
+            }
+
+            CategoryEntity parent = categoryRepository.findById(currentParentId)
+                    .orElseThrow(() -> new BusinessException(CategoryError.CATEGORY_INVALID_PARENT));
+            currentParentId = normalizeParentId(parent.getParentId());
         }
     }
 }

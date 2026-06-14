@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICategoryRepository;
 import x10.Clothing.api.common.domain.entities.CategoryEntity;
+import x10.Clothing.api.service.categorySerrvice.CategoryResponseMapper;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.category.CategoryError;
 
 import java.text.Normalizer;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -55,18 +58,21 @@ public class UpdateCategoryImpl implements IUpdateCategoryUc {
             entity.setActive(req.getActive());
         }
 
+        if (req.getParentId() != null) {
+            String parentId = normalizeParentId(req.getParentId());
+            validateParent(entity.getId(), parentId);
+            entity.setParentId(parentId);
+        }
+
+        if (req.getSortOrder() != null) {
+            entity.setSortOrder(req.getSortOrder());
+        }
+
         entity.setUpdatedAt(Instant.now());
 
         CategoryEntity saved = categoryRepository.save(entity);
 
-        return UpdateCategoryResp.builder()
-                .id(saved.getId())
-                .name(saved.getName())
-                .slug(saved.getSlug())
-                .description(saved.getDescription())
-                .active(saved.isActive())
-                .bannerUrl(saved.getBannerUrl())
-                .build();
+        return CategoryResponseMapper.toUpdateResp(saved);
     }
 
     /**
@@ -144,6 +150,40 @@ public class UpdateCategoryImpl implements IUpdateCategoryUc {
 
         if (req.getName() == null || req.getName().isBlank()) {
             throw new IllegalArgumentException("Category name is required");
+        }
+    }
+
+    private String normalizeParentId(String parentId) {
+        if (parentId == null || parentId.isBlank()) {
+            return null;
+        }
+        return parentId.trim();
+    }
+
+    private void validateParent(String categoryId, String parentId) {
+        if (parentId == null) {
+            return;
+        }
+
+        if (categoryId.equals(parentId)) {
+            throw new BusinessException(CategoryError.CATEGORY_INVALID_PARENT);
+        }
+
+        Set<String> visited = new HashSet<>();
+        String currentParentId = parentId;
+
+        while (currentParentId != null) {
+            if (categoryId.equals(currentParentId)) {
+                throw new BusinessException(CategoryError.CATEGORY_CYCLE_DETECTED);
+            }
+
+            if (!visited.add(currentParentId)) {
+                throw new BusinessException(CategoryError.CATEGORY_CYCLE_DETECTED);
+            }
+
+            CategoryEntity parent = categoryRepository.findById(currentParentId)
+                    .orElseThrow(() -> new BusinessException(CategoryError.CATEGORY_INVALID_PARENT));
+            currentParentId = normalizeParentId(parent.getParentId());
         }
     }
 }

@@ -22,6 +22,8 @@ public class CategoryDocument {
     private String description;
     private boolean active;
     private String bannerUrl;
+    private String parentId;
+    private Integer sortOrder;
     private Instant createdAt;
     private Instant updatedAt;
 }

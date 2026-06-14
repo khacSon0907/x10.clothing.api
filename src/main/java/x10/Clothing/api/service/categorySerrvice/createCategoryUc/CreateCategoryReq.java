@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateCategoryReq {
 
-    @NotBlank(message = "Tên danh mục không được để trống")
-    @Size(min = 2, max = 100, message = "Tên danh mục phải từ 2 đến 100 ký tự")
+    @NotBlank(message = "Ten danh muc khong duoc de trong")
+    @Size(min = 2, max = 100, message = "Ten danh muc phai tu 2 den 100 ky tu")
     private String name;
 
     private String description;
@@ -22,5 +22,8 @@ public class CreateCategoryReq {
     private String bannerUrl;
 
     private Boolean active;
-}
 
+    private String parentId;
+
+    private Integer sortOrder;
+}

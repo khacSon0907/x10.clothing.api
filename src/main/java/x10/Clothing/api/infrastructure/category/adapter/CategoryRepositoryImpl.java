@@ -41,10 +41,23 @@ public class CategoryRepositoryImpl implements ICategoryRepository {
 
     @Override
     public List<CategoryEntity> findAll() {
-        return categoryMongoRepository.findAll()
+        return categoryMongoRepository.findAllByOrderBySortOrderAsc()
                 .stream()
                 .map(CategoryMapper::toEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryEntity> findByParentId(String parentId) {
+        return categoryMongoRepository.findByParentIdOrderBySortOrderAsc(parentId)
+                .stream()
+                .map(CategoryMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsByParentId(String parentId) {
+        return categoryMongoRepository.existsByParentId(parentId);
     }
     @Override
     public Optional<CategoryEntity> findByNameIgnoreCase(String name) {

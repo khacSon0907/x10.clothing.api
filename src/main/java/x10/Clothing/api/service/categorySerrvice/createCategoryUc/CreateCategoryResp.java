@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,5 +18,7 @@ public class CreateCategoryResp {
     private String description;
     private boolean active;
     private String bannerUrl;
+    private String parentId;
+    private Integer sortOrder;
+    private List<CreateCategoryResp> children;
 }
-

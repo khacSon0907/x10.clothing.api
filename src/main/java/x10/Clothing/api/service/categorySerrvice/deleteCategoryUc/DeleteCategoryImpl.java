@@ -21,6 +21,10 @@ public class DeleteCategoryImpl implements IDeleteCategoryUc {
         categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new BusinessException(CategoryError.CATEGORY_NOT_FOUND));
 
+        if (categoryRepository.existsByParentId(categoryId)) {
+            throw new BusinessException(CategoryError.CATEGORY_HAS_CHILDREN);
+        }
+
         // Delete the category
         categoryRepository.deleteById(categoryId);
     }
