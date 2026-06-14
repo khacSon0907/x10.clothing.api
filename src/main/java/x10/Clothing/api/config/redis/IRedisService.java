@@ -45,4 +45,10 @@ public interface IRedisService {
     void addToBlacklist(String token, long expirationInMs);
 
     boolean isTokenBlacklisted(String token);
+
+    void saveOAuth2LoginCode(String code, String payload, Duration expiration);
+
+    String getOAuth2LoginCode(String code);
+
+    void deleteOAuth2LoginCode(String code);
 }

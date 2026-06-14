@@ -102,6 +102,13 @@ public enum UserError implements ErrorDescriptor {
             "Google token không hợp lệ hoặc đã hết hạn"
     ),
 
+    INVALID_OAUTH2_CODE(
+            "BUSINESS",
+            401,
+            "AUTH.INVALID_OAUTH2_CODE",
+            "Mã đăng nhập Google không hợp lệ hoặc đã hết hạn"
+    ),
+
     EMAIL_NOT_VERIFIED_GOOGLE(
             "BUSINESS",
             403,

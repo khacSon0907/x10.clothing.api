@@ -209,6 +209,7 @@ public class RedisServiceImpl implements IRedisService {
     }
 
     private static final String BLACKLIST_PREFIX = "token_blacklist:";
+    private static final String OAUTH2_LOGIN_CODE_PREFIX = "oauth2_login_code:";
 
     @Override
     public void addToBlacklist(String token, long expirationInMs) {
@@ -231,6 +232,37 @@ public class RedisServiceImpl implements IRedisService {
         } catch (Exception e) {
             log.error("Error checking token in blacklist", e);
             return false;
+        }
+    }
+
+    @Override
+    public void saveOAuth2LoginCode(String code, String payload, Duration expiration) {
+        try {
+            String key = OAUTH2_LOGIN_CODE_PREFIX + code;
+            redisTemplate.opsForValue().set(key, payload, expiration);
+        } catch (Exception e) {
+            log.error("Error saving OAuth2 login code", e);
+        }
+    }
+
+    @Override
+    public String getOAuth2LoginCode(String code) {
+        try {
+            String key = OAUTH2_LOGIN_CODE_PREFIX + code;
+            return redisTemplate.opsForValue().get(key);
+        } catch (Exception e) {
+            log.error("Error getting OAuth2 login code", e);
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteOAuth2LoginCode(String code) {
+        try {
+            String key = OAUTH2_LOGIN_CODE_PREFIX + code;
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.error("Error deleting OAuth2 login code", e);
         }
     }
 }

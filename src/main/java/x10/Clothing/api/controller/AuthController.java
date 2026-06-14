@@ -15,6 +15,8 @@ import x10.Clothing.api.service.authService.changePasswordUc.ChangePasswordReq;
 import x10.Clothing.api.service.authService.forgotPasswordUc.ForgotPasswordReq;
 import x10.Clothing.api.service.authService.loginUc.LoginReq;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
+import x10.Clothing.api.service.authService.oauth2LoginUc.OAuth2ExchangeRequest;
+import x10.Clothing.api.service.authService.oauth2LoginUc.OAuth2LoginCodeService;
 import x10.Clothing.api.service.authService.refreshTokenUc.RefreshTokenReq;
 import x10.Clothing.api.service.authService.registerUc.RegisterResponse;
 import x10.Clothing.api.service.authService.resetPasswordUc.ResetPasswordReq;
@@ -34,6 +36,7 @@ public class AuthController {
 
     private final ICoreAuthService coreAuthService;
     private final JwtProperties jwtProperties;
+    private final OAuth2LoginCodeService oAuth2LoginCodeService;
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
@@ -134,6 +137,27 @@ public class AuthController {
                 200,
                 "AUTH.REFRESH_SUCCESS",
                 "Làm mới token thành công",
+                loginResponse,
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    @PostMapping("/oauth2/exchange")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<LoginResponse> exchangeOAuth2Code(
+            @Valid @RequestBody OAuth2ExchangeRequest req,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        LoginResponse loginResponse = oAuth2LoginCodeService.consumeCode(req.getCode());
+
+        addRefreshTokenCookie(response, loginResponse);
+
+        return ApiResponse.success(
+                200,
+                "AUTH.OAUTH2_EXCHANGE_SUCCESS",
+                "Đăng nhập Google thành công",
                 loginResponse,
                 request.getRequestURI(),
                 null

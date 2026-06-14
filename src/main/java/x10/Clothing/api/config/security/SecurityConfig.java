@@ -124,7 +124,8 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/verify-forgot-password-otp",
                                 "/api/auth/reset-password",
-                                "/api/auth/refresh"
+                                "/api/auth/refresh",
+                                "/api/auth/oauth2/exchange"
                         ).permitAll()
 
                         // Categories public read

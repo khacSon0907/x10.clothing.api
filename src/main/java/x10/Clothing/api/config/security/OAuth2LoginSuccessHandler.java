@@ -12,11 +12,10 @@ import org.springframework.stereotype.Component;
 import x10.Clothing.api.config.jwt.JwtProperties;
 import x10.Clothing.api.service.authService.loginUc.LoginResponse;
 import x10.Clothing.api.service.authService.oauth2LoginUc.GoogleOauth2Service;
+import x10.Clothing.api.service.authService.oauth2LoginUc.OAuth2LoginCodeService;
 import x10.Clothing.api.util.CookieUtil;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +24,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
     private final GoogleOauth2Service googleOauth2Service;
+    private final OAuth2LoginCodeService oAuth2LoginCodeService;
     private final JwtProperties jwtProperties;
 
     @Value("${app.frontend-url:https://polo-man.vercel.app}")
@@ -56,15 +56,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private String buildSuccessRedirectUrl(LoginResponse loginResponse) {
-        String accessToken = encode(loginResponse.getAccessToken());
-        String refreshToken = encode(loginResponse.getRefreshToken());
+        String code = oAuth2LoginCodeService.createCode(loginResponse);
 
         return frontendUrl + "/oauth2/success"
-                + "#accessToken=" + accessToken
-                + "&refreshToken=" + refreshToken;
-    }
-
-    private String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+                + "?code=" + code;
     }
 }
