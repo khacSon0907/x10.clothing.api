@@ -17,6 +17,11 @@ public enum OrderStatus {
             return PENDING;
         }
 
-        return OrderStatus.valueOf(value.trim().toUpperCase());
+        String normalized = value.trim().toUpperCase();
+        if ("CANCELED".equals(normalized)) {
+            return CANCELLED;
+        }
+
+        return OrderStatus.valueOf(normalized);
     }
 }

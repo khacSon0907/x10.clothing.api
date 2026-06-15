@@ -167,6 +167,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/payments/payos-webhook")
                         .permitAll()
 
+                        // Orders
+                        .requestMatchers(HttpMethod.POST, "/api/orders")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/*/confirm")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/*/cancel")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/orders/**")
+                        .hasRole("ADMIN")
 
                         // Banners create/update/delete chỉ ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/banners")

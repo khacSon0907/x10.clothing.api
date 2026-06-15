@@ -8,8 +8,8 @@ import vn.payos.model.webhooks.Webhook;
 import vn.payos.model.webhooks.WebhookData;
 import x10.Clothing.api.Repository.IOrderRepository;
 import x10.Clothing.api.common.domain.entities.OrderEntity;
-import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
+import x10.Clothing.api.service.orderService.OrderInventoryService;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class PaymentWebhookService {
 
     private final IOrderRepository orderRepository;
+    private final OrderInventoryService orderInventoryService;
     private final SimpMessagingTemplate messagingTemplate;
     private final PayOS payOS;
 
@@ -34,7 +35,7 @@ public class PaymentWebhookService {
 
         order.setPaymentStatus(paymentStatus);
         if (PaymentStatus.PAID == paymentStatus) {
-            order.setStatus(OrderStatus.CONFIRMED);
+            orderInventoryService.confirmOrder(order);
         }
         order.setUpdatedAt(LocalDateTime.now());
 

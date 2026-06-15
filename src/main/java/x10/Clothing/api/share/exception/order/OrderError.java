@@ -23,6 +23,20 @@ public enum OrderError implements ErrorDescriptor {
             409,
             "ORDER.ALREADY_EXISTS",
             "Don hang da ton tai"
+    ),
+
+    INVALID_ORDER_STATUS(
+            "BUSINESS",
+            400,
+            "ORDER.INVALID_STATUS",
+            "Trang thai don hang khong hop le"
+    ),
+
+    INSUFFICIENT_STOCK(
+            "BUSINESS",
+            409,
+            "ORDER.INSUFFICIENT_STOCK",
+            "So luong ton kho khong du"
     );
 
     private final String type;

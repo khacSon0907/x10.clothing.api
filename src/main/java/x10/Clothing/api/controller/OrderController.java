@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.service.orderService.ICoreOrderService;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.createOrderUc.CreateOrderRequest;
@@ -105,6 +106,49 @@ public class OrderController {
                 200,
                 "ORDER.UPDATE_SUCCESS",
                 "Cap nhat don hang thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @PutMapping("/{orderId}/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<OrderResponse> confirmOrder(
+            @PathVariable("orderId") String orderId,
+            HttpServletRequest httpRequest
+    ) {
+        UpdateOrderRequest request = new UpdateOrderRequest();
+        request.setStatus(OrderStatus.CONFIRMED);
+
+        OrderResponse response = coreOrderService.updateOrder(orderId, request);
+
+        return ApiResponse.success(
+                200,
+                "ORDER.CONFIRM_SUCCESS",
+                "Xac nhan don hang thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @PutMapping("/{orderId}/cancel")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<OrderResponse> cancelOrder(
+            @PathVariable("orderId") String orderId,
+            @RequestBody(required = false) UpdateOrderRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        UpdateOrderRequest cancelRequest = request == null ? new UpdateOrderRequest() : request;
+        cancelRequest.setStatus(OrderStatus.CANCELLED);
+
+        OrderResponse response = coreOrderService.updateOrder(orderId, cancelRequest);
+
+        return ApiResponse.success(
+                200,
+                "ORDER.CANCEL_SUCCESS",
+                "Huy don hang thanh cong",
                 response,
                 httpRequest.getRequestURI(),
                 null

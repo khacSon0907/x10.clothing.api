@@ -10,6 +10,7 @@ import x10.Clothing.api.common.domain.entities.ProductEntity;
 import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.common.domain.enums.PaymentMethod;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
+import x10.Clothing.api.service.orderService.OrderInventoryService;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.share.exception.BusinessException;
@@ -27,6 +28,7 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
 
     private final IOrderRepository orderRepository;
     private final IProductRepository productRepository;
+    private final OrderInventoryService orderInventoryService;
 
     @Override
     public OrderResponse execute(String orderId, UpdateOrderRequest request) {
@@ -49,9 +51,6 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
         if (request.getPaymentStatus() != null) {
             order.setPaymentStatus(request.getPaymentStatus());
         }
-        if (request.getStatus() != null) {
-            order.setStatus(request.getStatus());
-        }
         if (request.getNote() != null) {
             order.setNote(request.getNote());
         }
@@ -71,6 +70,12 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
             order.setDiscountAmount(request.getDiscountAmount());
         }
         if (request.getItems() != null) {
+            if (order.getStatus() != OrderStatus.PENDING) {
+                throw new BusinessException(
+                        OrderError.INVALID_ORDER_STATUS,
+                        "Chi co the cap nhat san pham khi don hang dang cho xu ly"
+                );
+            }
             if (request.getItems().isEmpty()) {
                 throw new BusinessException(OrderError.INVALID_ORDER_DATA);
             }
@@ -80,9 +85,39 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
         }
 
         recalculateOrder(order);
+
+        if (request.getStatus() != null) {
+            applyStatusChange(order, request.getStatus(), request.getCancelReason());
+        }
+
         order.setUpdatedAt(LocalDateTime.now());
 
         return OrderResponseMapper.toResponse(orderRepository.save(order));
+    }
+
+    private void applyStatusChange(OrderEntity order, OrderStatus requestedStatus, String cancelReason) {
+        if (requestedStatus == order.getStatus()) {
+            return;
+        }
+
+        if (requestedStatus == OrderStatus.CONFIRMED) {
+            orderInventoryService.confirmOrder(order);
+            return;
+        }
+
+        if (requestedStatus == OrderStatus.CANCELLED) {
+            orderInventoryService.cancelPendingOrder(order, cancelReason);
+            return;
+        }
+
+        if (order.getStatus() == OrderStatus.PENDING) {
+            throw new BusinessException(
+                    OrderError.INVALID_ORDER_STATUS,
+                    "Don hang phai duoc xac nhan truoc khi chuyen sang trang thai tiep theo"
+            );
+        }
+
+        order.setStatus(requestedStatus);
     }
 
     private OrderItem buildOrderItem(UpdateOrderRequest.OrderItemRequest request) {
