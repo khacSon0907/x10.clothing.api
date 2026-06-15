@@ -33,19 +33,10 @@ public class UpdateProductUcImpl implements IUpdateProductUc {
             existing.setName(request.getName().trim());
         }
 
-        String slug = request.getSlug();
-        if (slug != null && !slug.isBlank()) {
-            slug = slug.trim();
+        if (request.getSlug() != null && !request.getSlug().isBlank()) {
+            existing.setSlug(generateUniqueSlug(request.getSlug(), existing.getId()));
         } else if (request.getName() != null && !request.getName().isBlank()) {
-            slug = generateSlug(request.getName());
-        }
-
-        if (slug != null) {
-            Optional<ProductEntity> withSlug = productRepository.findBySlug(slug);
-            if (withSlug.isPresent() && !withSlug.get().getId().equals(existing.getId())) {
-                throw new BusinessException(ProductError.PRODUCT_ALREADY_EXISTS);
-            }
-            existing.setSlug(slug);
+            existing.setSlug(generateUniqueSlug(request.getName(), existing.getId()));
         }
 
         if (request.getCategoryId() != null && !request.getCategoryId().isBlank()) {
@@ -89,7 +80,7 @@ public class UpdateProductUcImpl implements IUpdateProductUc {
                             SizeVariantEntity.builder()
                                     .id(sizeDto.getId() != null && !sizeDto.getId().isBlank() ? sizeDto.getId() : UUID.randomUUID().toString())
                                     .size(sizeDto.getSize())
-                                    .sku(sizeDto.getSku())
+                                    .sku(resolveSku(sizeDto.getSku(), existing.getSlug(), colorDto.getColorName(), sizeDto.getSize()))
                                     .quantity(sizeDto.getQuantity() != null ? sizeDto.getQuantity() : 0)
                                     .build()
                     ).collect(Collectors.toList());
@@ -127,9 +118,35 @@ public class UpdateProductUcImpl implements IUpdateProductUc {
     }
 
     private String generateSlug(String input) {
-        if (input == null) return "";
-        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        if (input == null) return "san-pham";
+        String normalized = Normalizer.normalize(input.replace('Đ', 'D').replace('đ', 'd'), Normalizer.Form.NFD);
         String noDiacritics = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        return noDiacritics.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        String slug = noDiacritics.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        return slug.isBlank() ? "san-pham" : slug;
+    }
+
+    private String generateUniqueSlug(String input, String currentProductId) {
+        String baseSlug = generateSlug(input);
+        String uniqueSlug = baseSlug;
+        int suffix = 2;
+
+        while (true) {
+            Optional<ProductEntity> withSlug = productRepository.findBySlug(uniqueSlug);
+
+            if (withSlug.isEmpty() || withSlug.get().getId().equals(currentProductId)) {
+                return uniqueSlug;
+            }
+
+            uniqueSlug = baseSlug + "-" + suffix;
+            suffix++;
+        }
+    }
+
+    private String resolveSku(String requestedSku, String productSlug, String colorName, String size) {
+        if (requestedSku != null && !requestedSku.isBlank()) {
+            return requestedSku.trim();
+        }
+
+        return generateSlug(productSlug + "-" + colorName + "-" + size).toUpperCase();
     }
 }

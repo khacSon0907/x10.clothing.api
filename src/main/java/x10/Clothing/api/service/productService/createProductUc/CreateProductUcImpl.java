@@ -7,8 +7,6 @@ import x10.Clothing.api.common.domain.entities.ColorVariantEntity;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
 import x10.Clothing.api.common.domain.entities.ProductImageEntity;
 import x10.Clothing.api.common.domain.entities.SizeVariantEntity;
-import x10.Clothing.api.share.exception.BusinessException;
-import x10.Clothing.api.share.exception.product.ProductError;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
@@ -25,15 +23,7 @@ public class CreateProductUcImpl implements ICreateProductUc {
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
-        
-        String slug = request.getSlug();
-        if (slug == null || slug.trim().isEmpty()) {
-            slug = generateSlug(request.getName());
-        }
-
-        if (productRepository.existsBySlug(slug)) {
-            throw new BusinessException(ProductError.PRODUCT_ALREADY_EXISTS);
-        }
+        String slug = generateUniqueSlug(request.getSlug(), request.getName());
 
         List<ColorVariantEntity> colors = Collections.emptyList();
         if (request.getColors() != null) {
@@ -57,7 +47,7 @@ public class CreateProductUcImpl implements ICreateProductUc {
                             SizeVariantEntity.builder()
                                     .id(UUID.randomUUID().toString())
                                     .size(sizeDto.getSize())
-                                    .sku(sizeDto.getSku())
+                                    .sku(resolveSku(sizeDto.getSku(), slug, colorDto.getColorName(), sizeDto.getSize()))
                                     .quantity(sizeDto.getQuantity() != null ? sizeDto.getQuantity() : 0)
                                     .build()
                     ).collect(Collectors.toList());
@@ -104,9 +94,34 @@ public class CreateProductUcImpl implements ICreateProductUc {
     }
 
     private String generateSlug(String input) {
-        if (input == null) return "";
-        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        if (input == null) return "san-pham";
+        String normalized = Normalizer.normalize(input.replace('Đ', 'D').replace('đ', 'd'), Normalizer.Form.NFD);
         String noDiacritics = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        return noDiacritics.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        String slug = noDiacritics.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        return slug.isBlank() ? "san-pham" : slug;
+    }
+
+    private String generateUniqueSlug(String requestedSlug, String productName) {
+        String baseSlug = requestedSlug != null && !requestedSlug.isBlank()
+                ? generateSlug(requestedSlug)
+                : generateSlug(productName);
+
+        String uniqueSlug = baseSlug;
+        int suffix = 2;
+
+        while (productRepository.existsBySlug(uniqueSlug)) {
+            uniqueSlug = baseSlug + "-" + suffix;
+            suffix++;
+        }
+
+        return uniqueSlug;
+    }
+
+    private String resolveSku(String requestedSku, String productSlug, String colorName, String size) {
+        if (requestedSku != null && !requestedSku.isBlank()) {
+            return requestedSku.trim();
+        }
+
+        return generateSlug(productSlug + "-" + colorName + "-" + size).toUpperCase();
     }
 }
