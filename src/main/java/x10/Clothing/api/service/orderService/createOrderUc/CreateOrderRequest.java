@@ -1,7 +1,9 @@
 package x10.Clothing.api.service.orderService.createOrderUc;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,8 +17,10 @@ import java.util.List;
 @Data
 public class CreateOrderRequest {
 
-    @NotBlank(message = "Nguoi dung khong duoc de trong")
     private String userId;
+
+    @Valid
+    private GuestRequest guest;
 
     @NotBlank(message = "Ten nguoi nhan khong duoc de trong")
     private String receiverName;
@@ -40,6 +44,28 @@ public class CreateOrderRequest {
     private PaymentMethod paymentMethod = PaymentMethod.COD;
 
     private String note;
+
+    @AssertTrue(message = "Can co userId hoac thong tin guest")
+    public boolean isBuyerValid() {
+        boolean hasUser = userId != null && !userId.isBlank();
+        boolean hasGuest = guest != null
+                && guest.getEmail() != null
+                && !guest.getEmail().isBlank()
+                && guest.getUsername() != null
+                && !guest.getUsername().isBlank();
+
+        return hasUser || hasGuest;
+    }
+
+    @Data
+    public static class GuestRequest {
+        @NotBlank(message = "Email guest khong duoc de trong")
+        @Email(message = "Email guest khong dung dinh dang")
+        private String email;
+
+        @NotBlank(message = "Ten guest khong duoc de trong")
+        private String username;
+    }
 
     @Data
     public static class OrderItemRequest {

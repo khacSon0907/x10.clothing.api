@@ -26,6 +26,9 @@ public class OrderDocument {
     private String orderCode;
     private Long payosOrderCode;
     private String userId;
+    private String guestId;
+    private String guestEmail;
+    private String guestUsername;
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;

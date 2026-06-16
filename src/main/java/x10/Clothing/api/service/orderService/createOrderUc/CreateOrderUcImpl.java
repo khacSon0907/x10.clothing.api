@@ -1,9 +1,12 @@
 package x10.Clothing.api.service.orderService.createOrderUc;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import x10.Clothing.api.Repository.IGuestRepository;
 import x10.Clothing.api.Repository.IOrderRepository;
 import x10.Clothing.api.Repository.IProductRepository;
+import x10.Clothing.api.common.domain.entities.GuestEntity;
 import x10.Clothing.api.common.domain.entities.OrderEntity;
 import x10.Clothing.api.common.domain.entities.OrderItem;
 import x10.Clothing.api.common.domain.entities.ProductEntity;
@@ -15,6 +18,7 @@ import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.service.paymentService.ICorePaymentService;
 import x10.Clothing.api.service.paymentService.createPayment.CreatePaymentLinkRequest;
 import x10.Clothing.api.service.paymentService.createPayment.CreatePaymentLinkResponse;
+import x10.Clothing.api.service.notification.event.OrderInvoiceEmailEvent;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.order.OrderError;
 import x10.Clothing.api.share.exception.product.ProductError;
@@ -34,15 +38,21 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
 
     private final IOrderRepository orderRepository;
     private final IProductRepository productRepository;
+    private final IGuestRepository guestRepository;
     private final ICorePaymentService paymentService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public OrderResponse execute(CreateOrderRequest request) {
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new BusinessException(OrderError.INVALID_ORDER_DATA);
         }
+        if (!hasUser(request) && request.getGuest() == null) {
+            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Can co userId hoac thong tin guest");
+        }
 
         LocalDateTime now = LocalDateTime.now();
+        GuestEntity guest = resolveGuest(request, now);
         List<OrderItem> items = request.getItems().stream()
                 .map(this::buildOrderItem)
                 .collect(Collectors.toList());
@@ -64,6 +74,9 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
                 .id(UUID.randomUUID().toString())
                 .orderCode(generateOrderCode(now))
                 .userId(request.getUserId())
+                .guestId(guest == null ? null : guest.getId())
+                .guestEmail(guest == null ? null : guest.getEmail())
+                .guestUsername(guest == null ? null : guest.getUsername())
                 .receiverName(request.getReceiverName())
                 .receiverPhone(request.getReceiverPhone())
                 .receiverAddress(request.getReceiverAddress())
@@ -82,6 +95,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
 
         OrderEntity savedOrder = orderRepository.save(order);
         OrderResponse response = OrderResponseMapper.toResponse(savedOrder);
+        publishInvoiceEmail(savedOrder);
 
         if (PaymentMethod.PAYOS == paymentMethod) {
             CreatePaymentLinkRequest paymentRequest = new CreatePaymentLinkRequest();
@@ -91,6 +105,58 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
         }
 
         return response;
+    }
+
+    private boolean hasUser(CreateOrderRequest request) {
+        return request.getUserId() != null && !request.getUserId().isBlank();
+    }
+
+    private GuestEntity resolveGuest(CreateOrderRequest request, LocalDateTime now) {
+        if (hasUser(request)) {
+            return null;
+        }
+
+        CreateOrderRequest.GuestRequest guestRequest = request.getGuest();
+        if (guestRequest == null
+                || guestRequest.getEmail() == null
+                || guestRequest.getEmail().isBlank()
+                || guestRequest.getUsername() == null
+                || guestRequest.getUsername().isBlank()) {
+            throw new BusinessException(OrderError.INVALID_ORDER_DATA, "Thong tin guest khong hop le");
+        }
+
+        String email = guestRequest.getEmail().trim().toLowerCase();
+        String username = guestRequest.getUsername().trim();
+
+        return guestRepository.findByEmail(email)
+                .map(existingGuest -> updateGuestUsername(existingGuest, username))
+                .orElseGet(() -> guestRepository.save(GuestEntity.builder()
+                        .id(UUID.randomUUID().toString())
+                        .email(email)
+                        .username(username)
+                        .createdAt(now)
+                        .build()));
+    }
+
+    private GuestEntity updateGuestUsername(GuestEntity guest, String username) {
+        if (!username.equals(guest.getUsername())) {
+            guest.setUsername(username);
+            return guestRepository.save(guest);
+        }
+
+        return guest;
+    }
+
+    private void publishInvoiceEmail(OrderEntity order) {
+        if (order.getGuestEmail() == null || order.getGuestEmail().isBlank()) {
+            return;
+        }
+
+        eventPublisher.publishEvent(new OrderInvoiceEmailEvent(
+                order.getGuestEmail(),
+                order.getGuestUsername(),
+                order
+        ));
     }
 
     private OrderItem buildOrderItem(CreateOrderRequest.OrderItemRequest request) {

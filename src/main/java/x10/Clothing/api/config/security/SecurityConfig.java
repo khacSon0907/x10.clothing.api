@@ -169,7 +169,7 @@ public class SecurityConfig {
 
                         // Orders
                         .requestMatchers(HttpMethod.POST, "/api/orders")
-                        .authenticated()
+                        .permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/orders/*/confirm")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/orders/*/cancel")
