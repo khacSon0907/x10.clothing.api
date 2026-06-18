@@ -3,7 +3,7 @@ package x10.Clothing.api.service.promotionBannerService.getPromotionBannerUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IPromotionBannerRepository;
-import x10.Clothing.api.common.domain.entities.PromotionBannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.PromotionBannerEntity;
 import x10.Clothing.api.service.promotionBannerService.PromotionBannerMapper;
 import x10.Clothing.api.service.promotionBannerService.PromotionBannerResp;
 import x10.Clothing.api.share.exception.BusinessException;

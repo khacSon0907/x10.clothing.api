@@ -5,10 +5,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.service.productService.ICoreProductService;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductRequest;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductResponse;
+import x10.Clothing.api.service.productService.getAllProductsUc.ProductCursorPageResponse;
 import x10.Clothing.api.service.productService.updateProductUc.UpdateProductRequest;
 import x10.Clothing.api.service.productService.updateProductUc.UpdateProductResponse;
 import x10.Clothing.api.share.response.ApiResponse;
@@ -34,6 +35,25 @@ public class ProductController {
                 201,
                 "PRODUCT.CREATE_SUCCESS",
                 "Tạo sản phẩm thành công",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping("/admin/cursor")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ProductCursorPageResponse> getProductsByCursor(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            HttpServletRequest httpRequest) {
+
+        ProductCursorPageResponse response = coreProductService.getAllProductsByCursor(cursor, limit);
+
+        return ApiResponse.success(
+                200,
+                "PRODUCT.GET_CURSOR_SUCCESS",
+                "Lay danh sach san pham phan trang thanh cong",
                 response,
                 httpRequest.getRequestURI(),
                 null

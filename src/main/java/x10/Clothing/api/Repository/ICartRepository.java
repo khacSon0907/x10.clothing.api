@@ -1,6 +1,6 @@
 package x10.Clothing.api.Repository;
 
-import x10.Clothing.api.common.domain.entities.CartEntity;
+import x10.Clothing.api.common.domain.entities.cart.CartEntity;
 
 import java.util.Optional;
 

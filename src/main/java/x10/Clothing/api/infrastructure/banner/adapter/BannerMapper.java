@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.banner.adapter;
 
-import x10.Clothing.api.common.domain.entities.BannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.BannerEntity;
 import x10.Clothing.api.infrastructure.banner.db.mongodb.BannerDocument;
 
 public class BannerMapper {

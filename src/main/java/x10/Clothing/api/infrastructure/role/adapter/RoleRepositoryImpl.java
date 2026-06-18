@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.role.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IRoleRepository;
-import x10.Clothing.api.common.domain.entities.RoleEntity;
+import x10.Clothing.api.common.domain.entities.user.RoleEntity;
 import x10.Clothing.api.infrastructure.role.adapter.mapper.RoleMapper;
 import x10.Clothing.api.infrastructure.role.db.mongodb.RoleDocument;
 import x10.Clothing.api.infrastructure.role.db.mongodb.RoleMongoRepository;

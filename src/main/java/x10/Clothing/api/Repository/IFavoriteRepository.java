@@ -1,6 +1,6 @@
 package x10.Clothing.api.Repository;
 
-import x10.Clothing.api.common.domain.entities.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
 
 import java.util.Optional;
 

@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.cart.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.ICartRepository;
-import x10.Clothing.api.common.domain.entities.CartEntity;
+import x10.Clothing.api.common.domain.entities.cart.CartEntity;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartDocument;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartMongoRepository;
 

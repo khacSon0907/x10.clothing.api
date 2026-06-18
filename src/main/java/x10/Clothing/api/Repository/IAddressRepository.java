@@ -1,6 +1,6 @@
 package x10.Clothing.api.Repository;
 
-import x10.Clothing.api.common.domain.entities.AddressEntity;
+import x10.Clothing.api.common.domain.entities.address.AddressEntity;
 
 import java.util.List;
 import java.util.Optional;

@@ -3,7 +3,7 @@ package x10.Clothing.api.service.addressService.getAddressUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import x10.Clothing.api.Repository.IAddressRepository;
-import x10.Clothing.api.common.domain.entities.AddressEntity;
+import x10.Clothing.api.common.domain.entities.address.AddressEntity;
 import x10.Clothing.api.service.addressService.AddressResponse;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.address.AddressError;

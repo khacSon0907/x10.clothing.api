@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.user.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IUserRepository;
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.infrastructure.user.adapter.mapper.UserMapper;
 import x10.Clothing.api.infrastructure.user.db.mongodb.UserDocument;
 import x10.Clothing.api.infrastructure.user.db.mongodb.UserMongoRepository;

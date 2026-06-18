@@ -1,7 +1,7 @@
 package x10.Clothing.api.infrastructure.mail.template;
 
-import x10.Clothing.api.common.domain.entities.OrderEntity;
-import x10.Clothing.api.common.domain.entities.OrderItem;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderItem;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;

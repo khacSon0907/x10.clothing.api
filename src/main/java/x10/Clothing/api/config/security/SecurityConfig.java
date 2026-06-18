@@ -140,6 +140,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
                         .hasRole("ADMIN")
 
+                        // Product admin read
+                        .requestMatchers(HttpMethod.GET, "/api/products/admin/**")
+                        .hasRole("ADMIN")
+
                         // Products public read
                         .requestMatchers(HttpMethod.GET, "/api/products/**")
                         .permitAll()

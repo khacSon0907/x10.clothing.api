@@ -7,7 +7,7 @@ import vn.payos.PayOS;
 import vn.payos.model.webhooks.Webhook;
 import vn.payos.model.webhooks.WebhookData;
 import x10.Clothing.api.Repository.IOrderRepository;
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
 import x10.Clothing.api.service.orderService.OrderInventoryService;
 

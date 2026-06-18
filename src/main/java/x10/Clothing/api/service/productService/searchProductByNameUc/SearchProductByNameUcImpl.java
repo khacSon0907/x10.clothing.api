@@ -3,7 +3,7 @@ package x10.Clothing.api.service.productService.searchProductByNameUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import x10.Clothing.api.Repository.IProductRepository;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 
 import java.util.Collections;
 import java.util.List;

@@ -3,7 +3,7 @@ package x10.Clothing.api.service.roleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IRoleRepository;
-import x10.Clothing.api.common.domain.entities.RoleEntity;
+import x10.Clothing.api.common.domain.entities.user.RoleEntity;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.role.RoleError;
 

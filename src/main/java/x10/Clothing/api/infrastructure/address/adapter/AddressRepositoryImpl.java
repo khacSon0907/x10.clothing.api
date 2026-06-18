@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.address.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IAddressRepository;
-import x10.Clothing.api.common.domain.entities.AddressEntity;
+import x10.Clothing.api.common.domain.entities.address.AddressEntity;
 import x10.Clothing.api.infrastructure.address.adapter.mapper.AddressMapper;
 import x10.Clothing.api.infrastructure.address.db.mongodb.AddressDocument;
 import x10.Clothing.api.infrastructure.address.db.mongodb.AddressMongoRepository;

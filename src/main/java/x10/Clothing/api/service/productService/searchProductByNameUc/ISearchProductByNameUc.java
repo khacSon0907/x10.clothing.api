@@ -1,6 +1,6 @@
 package x10.Clothing.api.service.productService.searchProductByNameUc;
 
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 
 import java.util.List;
 

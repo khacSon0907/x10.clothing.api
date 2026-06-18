@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.favorite.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IFavoriteRepository;
-import x10.Clothing.api.common.domain.entities.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
 import x10.Clothing.api.infrastructure.favorite.db.mongodb.FavoriteDocument;
 import x10.Clothing.api.infrastructure.favorite.db.mongodb.FavoriteMongoRepository;
 

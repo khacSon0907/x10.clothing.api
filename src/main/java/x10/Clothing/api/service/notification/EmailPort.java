@@ -1,6 +1,6 @@
 package x10.Clothing.api.service.notification;
 
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 
 public interface EmailPort {
 

@@ -1,7 +1,7 @@
 package x10.Clothing.api.infrastructure.favorite.adapter;
 
-import x10.Clothing.api.common.domain.entities.FavoriteEntity;
-import x10.Clothing.api.common.domain.entities.FavoriteItem;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
 import x10.Clothing.api.infrastructure.favorite.db.mongodb.FavoriteDocument;
 import x10.Clothing.api.infrastructure.favorite.db.mongodb.FavoriteItemDocument;
 

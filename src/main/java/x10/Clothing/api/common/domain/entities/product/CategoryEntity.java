@@ -1,4 +1,4 @@
-package x10.Clothing.api.common.domain.entities;
+package x10.Clothing.api.common.domain.entities.product;
 
 
 import lombok.AllArgsConstructor;

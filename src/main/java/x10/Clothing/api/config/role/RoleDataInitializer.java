@@ -5,7 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import x10.Clothing.api.Repository.IRoleRepository;
-import x10.Clothing.api.common.domain.entities.RoleEntity;
+import x10.Clothing.api.common.domain.entities.user.RoleEntity;
 
 import java.util.List;
 

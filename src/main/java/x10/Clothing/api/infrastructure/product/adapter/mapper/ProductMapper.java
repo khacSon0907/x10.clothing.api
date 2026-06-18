@@ -1,9 +1,9 @@
 package x10.Clothing.api.infrastructure.product.adapter.mapper;
 
-import x10.Clothing.api.common.domain.entities.ColorVariantEntity;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
-import x10.Clothing.api.common.domain.entities.ProductImageEntity;
-import x10.Clothing.api.common.domain.entities.SizeVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ColorVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductImageEntity;
+import x10.Clothing.api.common.domain.entities.product.SizeVariantEntity;
 import x10.Clothing.api.infrastructure.product.db.mongodb.ColorVariantDocument;
 import x10.Clothing.api.infrastructure.product.db.mongodb.ProductDocument;
 import x10.Clothing.api.infrastructure.product.db.mongodb.ProductImageDocument;

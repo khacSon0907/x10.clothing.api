@@ -1,6 +1,6 @@
 package x10.Clothing.api.service.userService;
 
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.service.userService.createUserUc.CreateUserReq;
 import x10.Clothing.api.service.userService.getAllUsersUc.GetAllUsersResponse;
 import x10.Clothing.api.service.userService.getMeUc.GetMeResponse;

@@ -3,7 +3,7 @@ package x10.Clothing.api.service.userService.getAllUsersUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;

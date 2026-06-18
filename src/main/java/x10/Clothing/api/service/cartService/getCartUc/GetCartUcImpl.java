@@ -3,8 +3,7 @@ package x10.Clothing.api.service.cartService.getCartUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICartRepository;
-import x10.Clothing.api.common.domain.entities.CartEntity;
-import x10.Clothing.api.common.domain.entities.CartItem;
+import x10.Clothing.api.common.domain.entities.cart.CartEntity;
 
 import java.math.BigDecimal;
 import java.time.Instant;

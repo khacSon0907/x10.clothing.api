@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.promotionBanner.adapter;
 
-import x10.Clothing.api.common.domain.entities.PromotionBannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.PromotionBannerEntity;
 import x10.Clothing.api.infrastructure.promotionBanner.db.mongodb.PromotionBannerDocument;
 
 public class PromotionBannerMapper {

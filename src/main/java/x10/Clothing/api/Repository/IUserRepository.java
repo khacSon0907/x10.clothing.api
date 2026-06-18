@@ -2,7 +2,7 @@ package x10.Clothing.api.Repository;
 
 
 
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 
 import java.util.List;
 import java.util.Optional;

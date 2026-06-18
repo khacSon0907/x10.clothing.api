@@ -1,7 +1,7 @@
 package x10.Clothing.api.infrastructure.cart.adapter;
 
-import x10.Clothing.api.common.domain.entities.CartEntity;
-import x10.Clothing.api.common.domain.entities.CartItem;
+import x10.Clothing.api.common.domain.entities.cart.CartEntity;
+import x10.Clothing.api.common.domain.entities.cart.CartItem;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartDocument;
 import x10.Clothing.api.infrastructure.cart.db.mongodb.CartItemDocument;
 

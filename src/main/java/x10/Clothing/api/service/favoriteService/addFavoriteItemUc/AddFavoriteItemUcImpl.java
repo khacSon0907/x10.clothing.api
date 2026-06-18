@@ -4,15 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IFavoriteRepository;
 import x10.Clothing.api.Repository.IProductRepository;
-import x10.Clothing.api.common.domain.entities.FavoriteEntity;
-import x10.Clothing.api.common.domain.entities.FavoriteItem;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.product.ProductError;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

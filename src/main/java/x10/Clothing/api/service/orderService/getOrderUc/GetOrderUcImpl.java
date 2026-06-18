@@ -3,7 +3,7 @@ package x10.Clothing.api.service.orderService.getOrderUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IOrderRepository;
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.share.exception.BusinessException;

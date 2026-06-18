@@ -1,13 +1,18 @@
 package x10.Clothing.api.infrastructure.product.adapter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IProductRepository;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.infrastructure.product.adapter.mapper.ProductMapper;
 import x10.Clothing.api.infrastructure.product.db.mongodb.ProductDocument;
 import x10.Clothing.api.infrastructure.product.db.mongodb.ProductMongoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +22,7 @@ import java.util.stream.Collectors;
 public class ProductRepositoryImpl implements IProductRepository {
 
     private final ProductMongoRepository productMongoRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public ProductEntity save(ProductEntity product) {
@@ -28,6 +34,30 @@ public class ProductRepositoryImpl implements IProductRepository {
     @Override
     public List<ProductEntity> findAll() {
         return productMongoRepository.findAll().stream()
+                .map(ProductMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductEntity> findAllByCursor(LocalDateTime cursorCreatedAt, String cursorId, int limit) {
+        Query query = new Query()
+                .with(Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("_id")
+                ))
+                .limit(limit);
+
+        if (cursorCreatedAt != null && cursorId != null && !cursorId.isBlank()) {
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("createdAt").lt(cursorCreatedAt),
+                    new Criteria().andOperator(
+                            Criteria.where("createdAt").is(cursorCreatedAt),
+                            Criteria.where("_id").lt(cursorId)
+                    )
+            ));
+        }
+
+        return mongoTemplate.find(query, ProductDocument.class).stream()
                 .map(ProductMapper::toEntity)
                 .collect(Collectors.toList());
     }

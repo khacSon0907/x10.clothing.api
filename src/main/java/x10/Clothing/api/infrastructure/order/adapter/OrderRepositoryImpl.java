@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.order.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IOrderRepository;
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderDocument;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderMongoRepository;
 

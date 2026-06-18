@@ -3,10 +3,10 @@ package x10.Clothing.api.service.productService.createProductUc;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import x10.Clothing.api.Repository.IProductRepository;
-import x10.Clothing.api.common.domain.entities.ColorVariantEntity;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
-import x10.Clothing.api.common.domain.entities.ProductImageEntity;
-import x10.Clothing.api.common.domain.entities.SizeVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ColorVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductImageEntity;
+import x10.Clothing.api.common.domain.entities.product.SizeVariantEntity;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;

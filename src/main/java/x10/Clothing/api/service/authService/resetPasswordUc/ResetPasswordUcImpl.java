@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.config.redis.IRedisService;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.user.UserError;

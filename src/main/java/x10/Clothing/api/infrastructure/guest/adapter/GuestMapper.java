@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.guest.adapter;
 
-import x10.Clothing.api.common.domain.entities.GuestEntity;
+import x10.Clothing.api.common.domain.entities.guest.GuestEntity;
 import x10.Clothing.api.infrastructure.guest.db.mongodb.GuestDocument;
 
 public class GuestMapper {

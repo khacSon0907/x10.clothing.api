@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.address.adapter.mapper;
 
-import x10.Clothing.api.common.domain.entities.AddressEntity;
+import x10.Clothing.api.common.domain.entities.address.AddressEntity;
 import x10.Clothing.api.infrastructure.address.db.mongodb.AddressDocument;
 
 public class AddressMapper {

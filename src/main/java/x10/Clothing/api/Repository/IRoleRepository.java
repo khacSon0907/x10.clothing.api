@@ -1,6 +1,6 @@
 package x10.Clothing.api.Repository;
 
-import x10.Clothing.api.common.domain.entities.RoleEntity;
+import x10.Clothing.api.common.domain.entities.user.RoleEntity;
 
 import java.util.List;
 import java.util.Optional;

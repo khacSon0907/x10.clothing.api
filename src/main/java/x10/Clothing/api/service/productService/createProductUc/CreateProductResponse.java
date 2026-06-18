@@ -2,7 +2,7 @@ package x10.Clothing.api.service.productService.createProductUc;
 
 import lombok.Builder;
 import lombok.Data;
-import x10.Clothing.api.common.domain.entities.ColorVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ColorVariantEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

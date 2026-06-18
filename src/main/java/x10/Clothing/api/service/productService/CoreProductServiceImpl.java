@@ -2,12 +2,13 @@ package x10.Clothing.api.service.productService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductRequest;
 import x10.Clothing.api.service.productService.createProductUc.CreateProductResponse;
 import x10.Clothing.api.service.productService.createProductUc.ICreateProductUc;
 import x10.Clothing.api.service.productService.deleteProductUc.IDeleteProductUc;
 import x10.Clothing.api.service.productService.getAllProductsUc.IGetAllProductsUc;
+import x10.Clothing.api.service.productService.getAllProductsUc.ProductCursorPageResponse;
 import x10.Clothing.api.service.productService.getProductUc.IGetProductUc;
 import x10.Clothing.api.service.productService.getProductsByCategoryIdUc.IGetProductsByCategoryIdUc;
 import x10.Clothing.api.service.productService.searchProductByNameUc.ISearchProductByNameUc;
@@ -37,6 +38,11 @@ public class CoreProductServiceImpl implements ICoreProductService {
     @Override
     public List<ProductEntity> getAllProducts() {
         return getAllProductsUc.getAllProducts();
+    }
+
+    @Override
+    public ProductCursorPageResponse getAllProductsByCursor(String cursor, Integer limit) {
+        return getAllProductsUc.getAllProductsByCursor(cursor, limit);
     }
 
     @Override

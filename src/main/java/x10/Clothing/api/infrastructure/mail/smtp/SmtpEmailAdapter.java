@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.infrastructure.mail.template.OrderInvoiceEmailTemplate;
 import x10.Clothing.api.infrastructure.mail.template.RegisterOtpEmailTemplate;
 import x10.Clothing.api.service.notification.EmailPort;

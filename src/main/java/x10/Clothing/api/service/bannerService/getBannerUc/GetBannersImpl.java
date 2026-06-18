@@ -3,7 +3,7 @@ package x10.Clothing.api.service.bannerService.getBannerUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IBannerRepository;
-import x10.Clothing.api.common.domain.entities.BannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.BannerEntity;
 import x10.Clothing.api.service.bannerService.createBannerUc.CreateBannerResp;
 
 import java.util.List;

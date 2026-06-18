@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.ICartRepository;
 import x10.Clothing.api.Repository.IProductRepository;
-import x10.Clothing.api.common.domain.entities.CartEntity;
-import x10.Clothing.api.common.domain.entities.CartItem;
-import x10.Clothing.api.common.domain.entities.ProductEntity;
-import x10.Clothing.api.service.cartService.getCartUc.IGetCartUc;
+import x10.Clothing.api.common.domain.entities.cart.CartEntity;
+import x10.Clothing.api.common.domain.entities.cart.CartItem;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.product.ProductError;
 

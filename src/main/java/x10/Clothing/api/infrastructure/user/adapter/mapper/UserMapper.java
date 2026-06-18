@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.user.adapter.mapper;
 
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.infrastructure.user.db.mongodb.UserDocument;
 
 public class UserMapper {

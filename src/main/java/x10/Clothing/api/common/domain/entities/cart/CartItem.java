@@ -1,5 +1,4 @@
-package x10.Clothing.api.common.domain.entities;
-
+package x10.Clothing.api.common.domain.entities.cart;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,15 +11,19 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem {
+public class CartItem {
+
     private String productId;
     private String productName;
     private String productImage;
+
     private String colorId;
     private String colorName;
+
     private String sizeId;
     private String sizeName;
+
     private Integer quantity;
+
     private BigDecimal unitPrice;
-    private BigDecimal totalPrice;
 }

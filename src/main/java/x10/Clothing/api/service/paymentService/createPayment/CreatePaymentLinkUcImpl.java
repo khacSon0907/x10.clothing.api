@@ -3,7 +3,7 @@ package x10.Clothing.api.service.paymentService.createPayment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IOrderRepository;
-import x10.Clothing.api.common.domain.entities.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 
 import java.time.LocalDateTime;
 

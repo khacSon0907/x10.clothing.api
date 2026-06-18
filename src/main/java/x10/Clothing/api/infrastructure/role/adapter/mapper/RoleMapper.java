@@ -1,6 +1,6 @@
 package x10.Clothing.api.infrastructure.role.adapter.mapper;
 
-import x10.Clothing.api.common.domain.entities.RoleEntity;
+import x10.Clothing.api.common.domain.entities.user.RoleEntity;
 import x10.Clothing.api.infrastructure.role.db.mongodb.RoleDocument;
 
 public class RoleMapper {

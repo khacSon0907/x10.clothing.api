@@ -1,6 +1,6 @@
 package x10.Clothing.api.service.promotionBannerService;
 
-import x10.Clothing.api.common.domain.entities.PromotionBannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.PromotionBannerEntity;
 
 public class PromotionBannerMapper {
 

@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.banner.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IBannerRepository;
-import x10.Clothing.api.common.domain.entities.BannerEntity;
+import x10.Clothing.api.common.domain.entities.banner.BannerEntity;
 import x10.Clothing.api.infrastructure.banner.db.mongodb.BannerMongoRepository;
 
 import java.util.List;

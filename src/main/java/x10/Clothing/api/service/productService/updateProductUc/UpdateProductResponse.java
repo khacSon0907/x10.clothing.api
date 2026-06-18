@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import x10.Clothing.api.common.domain.entities.ColorVariantEntity;
+import x10.Clothing.api.common.domain.entities.product.ColorVariantEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

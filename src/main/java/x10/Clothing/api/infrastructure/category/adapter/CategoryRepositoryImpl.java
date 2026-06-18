@@ -3,7 +3,7 @@ package x10.Clothing.api.infrastructure.category.adapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.ICategoryRepository;
-import x10.Clothing.api.common.domain.entities.CategoryEntity;
+import x10.Clothing.api.common.domain.entities.product.CategoryEntity;
 import x10.Clothing.api.infrastructure.category.db.mongodb.CategoryDocument;
 import x10.Clothing.api.infrastructure.category.db.mongodb.CategoryMongoRepository;
 

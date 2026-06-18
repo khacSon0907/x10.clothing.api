@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IUserRepository;
-import x10.Clothing.api.common.domain.entities.UserEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.config.redis.IRedisService;
 import x10.Clothing.api.service.notification.OtpGenerator;
 import x10.Clothing.api.service.notification.event.ForgotPasswordOtpEvent;

@@ -3,8 +3,8 @@ package x10.Clothing.api.service.favoriteService.removeFavoriteItemUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IFavoriteRepository;
-import x10.Clothing.api.common.domain.entities.FavoriteEntity;
-import x10.Clothing.api.common.domain.entities.FavoriteItem;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
 
 import java.time.Instant;
 import java.util.List;
