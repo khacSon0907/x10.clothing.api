@@ -35,8 +35,8 @@ public class CreateOrderRequest {
     @NotEmpty(message = "Don hang phai co san pham")
     private List<OrderItemRequest> items;
 
-    @DecimalMin(value = "0.0", message = "Phi van chuyen khong duoc am")
-    private BigDecimal shippingFee = BigDecimal.ZERO;
+
+    private BigDecimal shippingFee ;
 
     @DecimalMin(value = "0.0", message = "So tien giam gia khong duoc am")
     private BigDecimal discountAmount = BigDecimal.ZERO;

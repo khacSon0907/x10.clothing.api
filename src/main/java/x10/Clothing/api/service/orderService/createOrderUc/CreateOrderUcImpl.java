@@ -13,6 +13,7 @@ import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.common.domain.enums.PaymentMethod;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
+import x10.Clothing.api.service.orderService.ICoreShippingRuleService;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
 import x10.Clothing.api.service.paymentService.ICorePaymentService;
@@ -24,6 +25,7 @@ import x10.Clothing.api.share.exception.order.OrderError;
 import x10.Clothing.api.share.exception.product.ProductError;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,6 +42,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
     private final IProductRepository productRepository;
     private final IGuestRepository guestRepository;
     private final ICorePaymentService paymentService;
+    private final ICoreShippingRuleService shippingRuleService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -58,7 +61,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
                 .collect(Collectors.toList());
 
         BigDecimal subtotal = calculateSubtotal(items);
-        BigDecimal shippingFee = defaultZero(request.getShippingFee());
+        BigDecimal shippingFee = shippingRuleService.calculateShippingFee(subtotal, LocalDate.now());
         BigDecimal discountAmount = defaultZero(request.getDiscountAmount());
         BigDecimal totalAmount = subtotal.add(shippingFee).subtract(discountAmount);
 

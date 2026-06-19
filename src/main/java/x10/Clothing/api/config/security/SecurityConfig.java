@@ -141,6 +141,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
 
                         // Product admin read
+                        .requestMatchers(HttpMethod.GET, "/api/products/admin/cursor")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/admin/**")
                         .hasRole("ADMIN")
 
@@ -165,6 +167,8 @@ public class SecurityConfig {
 
                         // Locations public read
                         .requestMatchers(HttpMethod.GET, "/api/locations/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/shipping-rules/active")
                         .permitAll()
                         .requestMatchers("/ws", "/ws/**")
                         .permitAll()
@@ -196,6 +200,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/promotion-banners/**")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/promotion-banners/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/api/shipping-rules/**")
                         .hasRole("ADMIN")
 
                         // Các API auth còn lại cần login
