@@ -83,6 +83,7 @@ public class ProductMapper {
                 .size(document.getSize())
                 .sku(document.getSku())
                 .quantity(document.getQuantity())
+                .soldQuantity(defaultZero(document.getSoldQuantity()))
                 .build();
     }
 
@@ -93,7 +94,12 @@ public class ProductMapper {
                 .size(entity.getSize())
                 .sku(entity.getSku())
                 .quantity(entity.getQuantity())
+                .soldQuantity(defaultZero(entity.getSoldQuantity()))
                 .build();
+    }
+
+    private static Integer defaultZero(Integer value) {
+        return value == null ? 0 : value;
     }
 
     private static ProductImageEntity toProductImageEntity(ProductImageDocument document) {

@@ -18,4 +18,6 @@ public class SizeVariantEntity {
     private String sku; // VD: TSHIRT-BLACK-M
 
     private Integer quantity;
+
+    private Integer soldQuantity;
 }

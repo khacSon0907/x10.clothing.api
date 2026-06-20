@@ -81,6 +81,7 @@ public class OrderInventoryService {
             }
 
             size.setQuantity(currentQuantity - orderedQuantity);
+            size.setSoldQuantity(defaultZero(size.getSoldQuantity()) + orderedQuantity);
         }
 
         for (ProductEntity product : productsToSave.values()) {
@@ -117,5 +118,9 @@ public class OrderInventoryService {
 
     private boolean matches(String expected, String actual) {
         return expected != null && actual != null && expected.equals(actual);
+    }
+
+    private int defaultZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

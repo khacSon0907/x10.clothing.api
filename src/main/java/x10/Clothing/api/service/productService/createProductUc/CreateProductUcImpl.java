@@ -49,6 +49,7 @@ public class CreateProductUcImpl implements ICreateProductUc {
                                     .size(sizeDto.getSize())
                                     .sku(resolveSku(sizeDto.getSku(), slug, colorDto.getColorName(), sizeDto.getSize()))
                                     .quantity(sizeDto.getQuantity() != null ? sizeDto.getQuantity() : 0)
+                                    .soldQuantity(sizeDto.getSoldQuantity() != null ? sizeDto.getSoldQuantity() : 0)
                                     .build()
                     ).collect(Collectors.toList());
                 }

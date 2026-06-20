@@ -63,5 +63,8 @@ public class UpdateProductRequest {
 
         @Min(value = 0, message = "Số lượng không được âm")
         private Integer quantity;
+
+        @Min(value = 0, message = "So luong da ban khong duoc am")
+        private Integer soldQuantity;
     }
 }

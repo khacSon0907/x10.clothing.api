@@ -17,4 +17,6 @@ public class SizeVariantDocument {
     private String sku; // VD: TSHIRT-BLACK-M
 
     private Integer quantity;
+
+    private Integer soldQuantity;
 }

@@ -76,14 +76,17 @@ public class UpdateProductUcImpl implements IUpdateProductUc {
 
                 List<SizeVariantEntity> sizes = Collections.emptyList();
                 if (colorDto.getSizes() != null) {
-                    sizes = colorDto.getSizes().stream().map(sizeDto ->
-                            SizeVariantEntity.builder()
-                                    .id(sizeDto.getId() != null && !sizeDto.getId().isBlank() ? sizeDto.getId() : UUID.randomUUID().toString())
-                                    .size(sizeDto.getSize())
-                                    .sku(resolveSku(sizeDto.getSku(), existing.getSlug(), colorDto.getColorName(), sizeDto.getSize()))
-                                    .quantity(sizeDto.getQuantity() != null ? sizeDto.getQuantity() : 0)
-                                    .build()
-                    ).collect(Collectors.toList());
+                    sizes = colorDto.getSizes().stream().map(sizeDto -> {
+                        SizeVariantEntity existingSize = findExistingSize(existing, sizeDto.getId());
+
+                        return SizeVariantEntity.builder()
+                                .id(sizeDto.getId() != null && !sizeDto.getId().isBlank() ? sizeDto.getId() : UUID.randomUUID().toString())
+                                .size(sizeDto.getSize())
+                                .sku(resolveSku(sizeDto.getSku(), existing.getSlug(), colorDto.getColorName(), sizeDto.getSize()))
+                                .quantity(sizeDto.getQuantity() != null ? sizeDto.getQuantity() : 0)
+                                .soldQuantity(resolveSoldQuantity(sizeDto.getSoldQuantity(), existingSize))
+                                .build();
+                    }).collect(Collectors.toList());
                 }
 
                 return ColorVariantEntity.builder()
@@ -148,5 +151,30 @@ public class UpdateProductUcImpl implements IUpdateProductUc {
         }
 
         return generateSlug(productSlug + "-" + colorName + "-" + size).toUpperCase();
+    }
+
+    private SizeVariantEntity findExistingSize(ProductEntity product, String sizeId) {
+        if (product.getColors() == null || sizeId == null || sizeId.isBlank()) {
+            return null;
+        }
+
+        return product.getColors().stream()
+                .filter(color -> color.getSizes() != null)
+                .flatMap(color -> color.getSizes().stream())
+                .filter(size -> sizeId.equals(size.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Integer resolveSoldQuantity(Integer requestedSoldQuantity, SizeVariantEntity existingSize) {
+        if (requestedSoldQuantity != null) {
+            return requestedSoldQuantity;
+        }
+
+        if (existingSize != null && existingSize.getSoldQuantity() != null) {
+            return existingSize.getSoldQuantity();
+        }
+
+        return 0;
     }
 }
