@@ -1,9 +1,13 @@
 package x10.Clothing.api.infrastructure.mail.smtp;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.infrastructure.mail.template.OrderInvoiceEmailTemplate;
@@ -61,15 +65,21 @@ public class SmtpEmailAdapter implements EmailPort {
             String username,
             OrderEntity order
     ) {
-        SimpleMailMessage message = new SimpleMailMessage();
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
-        message.setFrom(mailFrom);
-        message.setTo(to);
-        message.setSubject("X10 Clothing invoice - " + order.getOrderCode());
-        message.setText(
-                OrderInvoiceEmailTemplate.build(username, order)
-        );
+            helper.setFrom(mailFrom);
+            helper.setTo(to);
+            helper.setSubject("X10 Clothing invoice - " + order.getOrderCode());
+            helper.setText(
+                    OrderInvoiceEmailTemplate.build(username, order),
+                    true
+            );
 
-        javaMailSender.send(message);
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new MailPreparationException("Failed to prepare order invoice email", e);
+        }
     }
 }

@@ -108,14 +108,26 @@ public class UpdateOrderUcImpl implements IUpdateOrderUc {
             return;
         }
 
+        if (requestedStatus == OrderStatus.RETURNED) {
+            if (order.getStatus() != OrderStatus.CONFIRMED) {
+                throw new BusinessException(
+                        OrderError.INVALID_ORDER_STATUS,
+                        "Chi co the tra hang voi don hang da xac nhan"
+                );
+            }
+
+            order.setStatus(OrderStatus.RETURNED);
+            return;
+        }
+
         if (order.getStatus() == OrderStatus.PENDING) {
             throw new BusinessException(
                     OrderError.INVALID_ORDER_STATUS,
-                    "Don hang phai duoc xac nhan truoc khi chuyen sang trang thai tiep theo"
+                    "Don hang dang cho xu ly chi co the xac nhan hoac huy"
             );
         }
 
-        order.setStatus(requestedStatus);
+        throw new BusinessException(OrderError.INVALID_ORDER_STATUS);
     }
 
     private OrderItem buildOrderItem(UpdateOrderRequest.OrderItemRequest request) {

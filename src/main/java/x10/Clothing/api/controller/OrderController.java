@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,12 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.service.orderService.ICoreOrderService;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.createOrderUc.CreateOrderRequest;
+import x10.Clothing.api.service.orderService.getOrderUc.OrderCursorPageResponse;
 import x10.Clothing.api.service.orderService.updateOrderUc.UpdateOrderRequest;
 import x10.Clothing.api.share.response.ApiResponse;
 
@@ -54,6 +59,58 @@ public class OrderController {
                 200,
                 "ORDER.GET_ALL_SUCCESS",
                 "Lay danh sach don hang thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping("/admin/cursor")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<OrderCursorPageResponse> getAllOrdersByCursor(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            HttpServletRequest httpRequest
+    ) {
+        OrderCursorPageResponse response = coreOrderService.getAllOrdersByCursor(cursor, limit);
+        return ApiResponse.success(
+                200,
+                "ORDER.GET_CURSOR_SUCCESS",
+                "Lay danh sach don hang phan trang thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<OrderResponse>> getMyOrders(HttpServletRequest httpRequest) {
+        String userId = getCurrentUserId();
+        List<OrderResponse> response = coreOrderService.getOrdersByUserId(userId);
+        return ApiResponse.success(
+                200,
+                "ORDER.GET_MY_ORDERS_SUCCESS",
+                "Lay danh sach don hang cua tai khoan dang dang nhap thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping("/me/cursor")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<OrderCursorPageResponse> getMyOrdersByCursor(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            HttpServletRequest httpRequest
+    ) {
+        String userId = getCurrentUserId();
+        OrderCursorPageResponse response = coreOrderService.getOrdersByUserIdByCursor(userId, cursor, limit);
+        return ApiResponse.success(
+                200,
+                "ORDER.GET_MY_ORDERS_CURSOR_SUCCESS",
+                "Lay danh sach don hang cua tai khoan dang dang nhap phan trang thanh cong",
                 response,
                 httpRequest.getRequestURI(),
                 null
@@ -170,5 +227,21 @@ public class OrderController {
                 httpRequest.getRequestURI(),
                 null
         );
+    }
+
+    private String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getPrincipal() == null
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User is not authenticated"
+            );
+        }
+
+        return authentication.getPrincipal().toString();
     }
 }

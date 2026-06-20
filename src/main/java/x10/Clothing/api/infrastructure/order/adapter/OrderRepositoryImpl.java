@@ -1,12 +1,17 @@
 package x10.Clothing.api.infrastructure.order.adapter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IOrderRepository;
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderDocument;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderMongoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +21,7 @@ import java.util.stream.Collectors;
 public class OrderRepositoryImpl implements IOrderRepository {
 
     private final OrderMongoRepository orderMongoRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public OrderEntity save(OrderEntity order) {
@@ -32,8 +38,27 @@ public class OrderRepositoryImpl implements IOrderRepository {
     }
 
     @Override
+    public List<OrderEntity> findAllByCursor(LocalDateTime cursorCreatedAt, String cursorId, int limit) {
+        Query query = createCursorQuery(cursorCreatedAt, cursorId, limit);
+
+        return mongoTemplate.find(query, OrderDocument.class).stream()
+                .map(OrderMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<OrderEntity> findByUserId(String userId) {
         return orderMongoRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(OrderMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderEntity> findByUserIdByCursor(String userId, LocalDateTime cursorCreatedAt, String cursorId, int limit) {
+        Query query = createCursorQuery(cursorCreatedAt, cursorId, limit);
+        query.addCriteria(Criteria.where("userId").is(userId));
+
+        return mongoTemplate.find(query, OrderDocument.class).stream()
                 .map(OrderMapper::toEntity)
                 .collect(Collectors.toList());
     }
@@ -59,5 +84,26 @@ public class OrderRepositoryImpl implements IOrderRepository {
     @Override
     public void deleteById(String id) {
         orderMongoRepository.deleteById(id);
+    }
+
+    private Query createCursorQuery(LocalDateTime cursorCreatedAt, String cursorId, int limit) {
+        Query query = new Query()
+                .with(Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("_id")
+                ))
+                .limit(limit);
+
+        if (cursorCreatedAt != null && cursorId != null && !cursorId.isBlank()) {
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("createdAt").lt(cursorCreatedAt),
+                    new Criteria().andOperator(
+                            Criteria.where("createdAt").is(cursorCreatedAt),
+                            Criteria.where("_id").lt(cursorId)
+                    )
+            ));
+        }
+
+        return query;
     }
 }

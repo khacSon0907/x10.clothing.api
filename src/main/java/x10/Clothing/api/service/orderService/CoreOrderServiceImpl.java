@@ -8,6 +8,7 @@ import x10.Clothing.api.service.orderService.deleteOrderUc.IDeleteOrderUc;
 import x10.Clothing.api.service.orderService.getOrderUc.IGetAllOrdersUc;
 import x10.Clothing.api.service.orderService.getOrderUc.IGetOrderUc;
 import x10.Clothing.api.service.orderService.getOrderUc.IGetOrdersByUserIdUc;
+import x10.Clothing.api.service.orderService.getOrderUc.OrderCursorPageResponse;
 import x10.Clothing.api.service.orderService.updateOrderUc.IUpdateOrderUc;
 import x10.Clothing.api.service.orderService.updateOrderUc.UpdateOrderRequest;
 
@@ -35,8 +36,18 @@ public class CoreOrderServiceImpl implements ICoreOrderService {
     }
 
     @Override
+    public OrderCursorPageResponse getAllOrdersByCursor(String cursor, Integer limit) {
+        return getAllOrdersUc.executeByCursor(cursor, limit);
+    }
+
+    @Override
     public List<OrderResponse> getOrdersByUserId(String userId) {
         return getOrdersByUserIdUc.execute(userId);
+    }
+
+    @Override
+    public OrderCursorPageResponse getOrdersByUserIdByCursor(String userId, String cursor, Integer limit) {
+        return getOrdersByUserIdUc.executeByCursor(userId, cursor, limit);
     }
 
     @Override

@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface IGetAllOrdersUc {
     List<OrderResponse> execute();
+
+    OrderCursorPageResponse executeByCursor(String cursor, Integer limit);
 }
