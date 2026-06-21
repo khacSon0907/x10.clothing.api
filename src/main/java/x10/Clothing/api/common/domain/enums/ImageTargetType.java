@@ -4,5 +4,6 @@ public enum ImageTargetType {
     PRODUCT,
     USER_AVATAR,
     CATEGORY,
-    BANNER
+    BANNER,
+    REVIEW
 }

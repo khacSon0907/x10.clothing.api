@@ -60,6 +60,7 @@ public class ImageSignatureService implements IImageSignatureService {
             case USER_AVATAR -> "PoloMan/users/avatars";
             case CATEGORY -> "PoloMan/categories";
             case BANNER -> "PoloMan/banners";
+            case REVIEW -> "PoloMan/reviews";
         };
     }
 }
