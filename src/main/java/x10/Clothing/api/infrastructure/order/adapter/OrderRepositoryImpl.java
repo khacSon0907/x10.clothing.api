@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import x10.Clothing.api.Repository.IOrderRepository;
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderDocument;
 import x10.Clothing.api.infrastructure.order.db.mongodb.OrderMongoRepository;
 
@@ -79,6 +80,20 @@ public class OrderRepositoryImpl implements IOrderRepository {
     public Optional<OrderEntity> findByPayosOrderCode(Long payosOrderCode) {
         return orderMongoRepository.findByPayosOrderCode(payosOrderCode)
                 .map(OrderMapper::toEntity);
+    }
+
+    @Override
+    public List<OrderEntity> findByStatus(OrderStatus status) {
+        return orderMongoRepository.findByStatus(status).stream()
+                .map(OrderMapper::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderEntity> findByStatusAndCreatedAtBetween(OrderStatus status, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return orderMongoRepository.findByStatusAndCreatedAtBetween(status, startDateTime, endDateTime).stream()
+                .map(OrderMapper::toEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

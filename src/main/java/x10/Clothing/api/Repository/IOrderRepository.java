@@ -1,6 +1,7 @@
 package x10.Clothing.api.Repository;
 
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
+import x10.Clothing.api.common.domain.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,10 @@ public interface IOrderRepository {
     Optional<OrderEntity> findByOrderCode(String orderCode);
 
     Optional<OrderEntity> findByPayosOrderCode(Long payosOrderCode);
+
+    List<OrderEntity> findByStatus(OrderStatus status);
+
+    List<OrderEntity> findByStatusAndCreatedAtBetween(OrderStatus status, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
     void deleteById(String id);
 }

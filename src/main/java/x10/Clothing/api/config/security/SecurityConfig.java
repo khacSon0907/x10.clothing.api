@@ -186,6 +186,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/orders/**")
                         .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/revenue/**")
+                        .hasRole("ADMIN")
 
                         // Banners create/update/delete chỉ ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/banners")
