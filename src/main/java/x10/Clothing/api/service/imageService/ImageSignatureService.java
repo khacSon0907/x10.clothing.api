@@ -62,6 +62,7 @@ public class ImageSignatureService implements IImageSignatureService {
             case BANNER -> "PoloMan/banners";
             case REVIEW -> "PoloMan/reviews";
             case REFUND -> "PoloMan/refunds";
+            case CHAT -> "PoloMan/chats";
             default -> throw new IllegalArgumentException("Unsupported image targetType: " + targetType);
         };
     }

@@ -40,6 +40,10 @@ public class MessageDocument {
      */
     private String content;
 
+    private String imageUrl;
+
+    private String imagePublicId;
+
     /**
      * Đã xem chưa
      */

@@ -3,7 +3,11 @@ package x10.Clothing.api.service.favoriteService.getFavoriteUc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IFavoriteRepository;
+import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
+import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
+import x10.Clothing.api.common.domain.entities.product.ProductEntity;
+import x10.Clothing.api.common.domain.entities.product.ProductImageEntity;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,6 +20,7 @@ import java.util.stream.Collectors;
 public class GetFavoriteUcImpl implements IGetFavoriteUc {
 
     private final IFavoriteRepository favoriteRepository;
+    private final IProductRepository productRepository;
 
     @Override
     public GetFavoriteUcResp execute(String userId) {
@@ -41,7 +46,7 @@ public class GetFavoriteUcImpl implements IGetFavoriteUc {
                         .map(item -> GetFavoriteUcResp.FavoriteItemResp.builder()
                                 .productId(item.getProductId())
                                 .productName(item.getProductName())
-                                .productImage(item.getProductImage())
+                                .productImage(resolveFavoriteImage(item))
                                 .build())
                         .collect(Collectors.toList());
 
@@ -53,6 +58,41 @@ public class GetFavoriteUcImpl implements IGetFavoriteUc {
                 .createdAt(favorite.getCreatedAt())
                 .updatedAt(favorite.getUpdatedAt())
                 .build();
+    }
+
+    private String resolveFavoriteImage(FavoriteItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        if (item.getProductImage() != null && !item.getProductImage().isBlank()) {
+            return item.getProductImage();
+        }
+
+        return productRepository.findById(item.getProductId())
+                .map(this::resolveProductImage)
+                .orElse(null);
+    }
+
+    private String resolveProductImage(ProductEntity product) {
+        if (product == null || product.getColors() == null) {
+            return null;
+        }
+
+        return product.getColors().stream()
+                .filter(color -> color != null && color.getImages() != null)
+                .flatMap(color -> color.getImages().stream())
+                .filter(image -> image != null && image.getUrl() != null && !image.getUrl().isBlank())
+                .filter(image -> Boolean.TRUE.equals(image.getMain()))
+                .map(ProductImageEntity::getUrl)
+                .findFirst()
+                .orElseGet(() -> product.getColors().stream()
+                        .filter(color -> color != null && color.getImages() != null)
+                        .flatMap(color -> color.getImages().stream())
+                        .filter(image -> image != null && image.getUrl() != null && !image.getUrl().isBlank())
+                        .map(ProductImageEntity::getUrl)
+                        .findFirst()
+                        .orElse(null));
     }
 }
 

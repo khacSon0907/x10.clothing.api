@@ -18,6 +18,8 @@ public class MessageMapper {
                 .senderId(entity.getSenderId())
                 .senderType(entity.getSenderType())
                 .content(entity.getContent())
+                .imageUrl(entity.getImageUrl())
+                .imagePublicId(entity.getImagePublicId())
                 .seen(entity.getSeen())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -34,6 +36,8 @@ public class MessageMapper {
                 .senderId(document.getSenderId())
                 .senderType(document.getSenderType())
                 .content(document.getContent())
+                .imageUrl(document.getImageUrl())
+                .imagePublicId(document.getImagePublicId())
                 .seen(document.getSeen())
                 .createdAt(document.getCreatedAt())
                 .build();

@@ -6,5 +6,6 @@ public enum ImageTargetType {
     CATEGORY,
     BANNER,
     REVIEW,
-    REFUND
+    REFUND,
+    CHAT
 }

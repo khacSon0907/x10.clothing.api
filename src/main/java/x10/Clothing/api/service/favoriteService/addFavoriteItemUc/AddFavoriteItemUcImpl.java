@@ -6,6 +6,7 @@ import x10.Clothing.api.Repository.IFavoriteRepository;
 import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.common.domain.entities.favorite.FavoriteEntity;
 import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
+import x10.Clothing.api.common.domain.entities.product.ProductImageEntity;
 import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.product.ProductError;
@@ -52,7 +53,7 @@ public class AddFavoriteItemUcImpl implements IAddFavoriteItemUc {
             FavoriteItem item = FavoriteItem.builder()
                     .productId(product.getId())
                     .productName(product.getName())
-                    .productImage(null)
+                    .productImage(resolveProductImage(product))
                     .price(product.getPrice())
                     .build();
             favorite.getItems().add(item);
@@ -66,5 +67,26 @@ public class AddFavoriteItemUcImpl implements IAddFavoriteItemUc {
                 .userId(userId)
                 .productId(req.getProductId())
                 .build();
+    }
+
+    private String resolveProductImage(ProductEntity product) {
+        if (product == null || product.getColors() == null) {
+            return null;
+        }
+
+        return product.getColors().stream()
+                .filter(color -> color != null && color.getImages() != null)
+                .flatMap(color -> color.getImages().stream())
+                .filter(image -> image != null && image.getUrl() != null && !image.getUrl().isBlank())
+                .filter(image -> Boolean.TRUE.equals(image.getMain()))
+                .map(ProductImageEntity::getUrl)
+                .findFirst()
+                .orElseGet(() -> product.getColors().stream()
+                        .filter(color -> color != null && color.getImages() != null)
+                        .flatMap(color -> color.getImages().stream())
+                        .filter(image -> image != null && image.getUrl() != null && !image.getUrl().isBlank())
+                        .map(ProductImageEntity::getUrl)
+                        .findFirst()
+                        .orElse(null));
     }
 }

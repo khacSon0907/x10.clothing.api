@@ -2,9 +2,12 @@ package x10.Clothing.api.service.reviewService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import x10.Clothing.api.Repository.IProductRepository;
 import x10.Clothing.api.Repository.IReviewRepository;
+import x10.Clothing.api.Repository.IUserRepository;
 import x10.Clothing.api.common.domain.entities.review.ReviewEntity;
+import x10.Clothing.api.common.domain.entities.user.UserEntity;
 import x10.Clothing.api.share.exception.BusinessException;
 import x10.Clothing.api.share.exception.product.ProductError;
 import x10.Clothing.api.share.exception.review.ReviewError;
@@ -20,6 +23,7 @@ public class CoreReviewServiceImpl implements ICoreReviewService {
 
     private final IReviewRepository reviewRepository;
     private final IProductRepository productRepository;
+    private final IUserRepository userRepository;
 
     @Override
     public ReviewResponse createReview(ReviewRequest request) {
@@ -37,18 +41,18 @@ public class CoreReviewServiceImpl implements ICoreReviewService {
                 .updatedAt(now)
                 .build();
 
-        return ReviewResponseMapper.toResponse(reviewRepository.save(review));
+        return toResponse(reviewRepository.save(review));
     }
 
     @Override
     public ReviewResponse getReviewById(String id) {
-        return ReviewResponseMapper.toResponse(findReviewOrThrow(id));
+        return toResponse(findReviewOrThrow(id));
     }
 
     @Override
     public List<ReviewResponse> getAllReviews() {
         return reviewRepository.findAll().stream()
-                .map(ReviewResponseMapper::toResponse)
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -56,7 +60,7 @@ public class CoreReviewServiceImpl implements ICoreReviewService {
     public List<ReviewResponse> getReviewsByProductId(String productId) {
         validateProductExists(productId);
         return reviewRepository.findByProductId(productId).stream()
-                .map(ReviewResponseMapper::toResponse)
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -102,7 +106,7 @@ public class CoreReviewServiceImpl implements ICoreReviewService {
         review.setImages(request.getImages());
         review.setUpdatedAt(LocalDateTime.now());
 
-        return ReviewResponseMapper.toResponse(reviewRepository.save(review));
+        return toResponse(reviewRepository.save(review));
     }
 
     @Override
@@ -129,5 +133,31 @@ public class CoreReviewServiceImpl implements ICoreReviewService {
 
     private int defaultRating(Integer rating) {
         return rating == null ? 0 : rating;
+    }
+
+    private ReviewResponse toResponse(ReviewEntity review) {
+        ReviewResponse response = ReviewResponseMapper.toResponse(review);
+        if (response == null || !StringUtils.hasText(review.getUserId())) {
+            return response;
+        }
+
+        userRepository.findById(review.getUserId()).ifPresent(user -> {
+            response.setUserName(displayName(user));
+            response.setUserAvatarUrl(user.getAvatarUrl());
+        });
+
+        return response;
+    }
+
+    private String displayName(UserEntity user) {
+        if (StringUtils.hasText(user.getUsername())) {
+            return user.getUsername();
+        }
+
+        if (StringUtils.hasText(user.getEmail())) {
+            return user.getEmail();
+        }
+
+        return user.getId();
     }
 }

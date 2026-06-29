@@ -1,46 +1,24 @@
-package x10.Clothing.api.common.domain.entities.chat;
+package x10.Clothing.api.service.chatService;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import x10.Clothing.api.common.domain.enums.SenderType;
 
 import java.time.Instant;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class MessageEntity {
+public class ChatMessageResponse {
 
-    private String id ;
-
+    private String id;
     private String conversationId;
-
     private String senderId;
-
-    /**
-     * CUSTOMER | ADMIN | AI
-     */
+    private String senderName;
+    private String senderAvatarUrl;
     private SenderType senderType;
-
-    /**
-     * Nội dung
-     */
     private String content;
-
     private String imageUrl;
-
     private String imagePublicId;
-
-    /**
-     * Đã xem chưa
-     */
     private Boolean seen;
-
-    /**
-     * Thời gian gửi
-     */
     private Instant createdAt;
 }

@@ -15,4 +15,6 @@ public interface ConversationMongoRepository
 
     List<ConversationDocument> findByAdminId(String adminId);
 
+    List<ConversationDocument> findAllByOrderByUpdatedAtDesc();
+
 }

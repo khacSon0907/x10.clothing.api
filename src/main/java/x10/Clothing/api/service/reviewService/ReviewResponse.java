@@ -20,6 +20,10 @@ public class ReviewResponse {
 
     private String userId;
 
+    private String userName;
+
+    private String userAvatarUrl;
+
     private Integer rating;
 
     private String comment;

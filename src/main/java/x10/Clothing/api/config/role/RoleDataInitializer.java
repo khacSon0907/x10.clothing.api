@@ -21,6 +21,18 @@ public class RoleDataInitializer implements CommandLineRunner {
 
         List<RoleEntity> defaultRoles = List.of(
                 RoleEntity.builder()
+                        .code("ADMIN")
+                        .name("Admin")
+                        .description("System administrator role")
+                        .active(true)
+                        .build(),
+                RoleEntity.builder()
+                        .code("STAFF")
+                        .name("Staff")
+                        .description("Store staff role")
+                        .active(true)
+                        .build(),
+                RoleEntity.builder()
                         .code("USER")
                         .name("User")
                         .description("Default customer role")
