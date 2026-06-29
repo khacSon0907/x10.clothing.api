@@ -3,6 +3,7 @@ package x10.Clothing.api.Repository;
 import x10.Clothing.api.common.domain.entities.order.RefundEntity;
 import x10.Clothing.api.common.domain.enums.RefundStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ public interface IRefundRepository {
     Optional<RefundEntity> findById(String id);
 
     List<RefundEntity> findAll();
+
+    List<RefundEntity> findAllByCursor(LocalDateTime cursorCreatedAt, String cursorId, int limit);
 
     List<RefundEntity> findByUserId(String userId);
 

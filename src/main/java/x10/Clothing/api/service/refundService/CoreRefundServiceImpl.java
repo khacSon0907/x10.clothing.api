@@ -18,6 +18,7 @@ import x10.Clothing.api.common.domain.enums.RefundStatus;
 import x10.Clothing.api.common.domain.enums.RefundType;
 import x10.Clothing.api.service.refundService.approveRefundUc.IApproveRefundUc;
 import x10.Clothing.api.service.refundService.getRefundUc.IGetRefundsUc;
+import x10.Clothing.api.service.refundService.getRefundUc.RefundCursorPageResponse;
 import x10.Clothing.api.service.refundService.rejectRefundUc.IRejectRefundUc;
 import x10.Clothing.api.service.refundService.requestRefundUc.IRequestRefundUc;
 import x10.Clothing.api.share.exception.BusinessException;
@@ -53,6 +54,11 @@ public class CoreRefundServiceImpl implements ICoreRefundService {
     @Override
     public List<RefundResponse> getAllRefunds() {
         return getRefundsUc.getAllRefunds();
+    }
+
+    @Override
+    public RefundCursorPageResponse getAllRefundsByCursor(String cursor, Integer limit) {
+        return getRefundsUc.getAllRefundsByCursor(cursor, limit);
     }
 
     @Override

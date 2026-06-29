@@ -9,4 +9,6 @@ public interface IGetRefundsUc {
     List<RefundResponse> getMyRefunds(String userId);
 
     List<RefundResponse> getAllRefunds();
+
+    RefundCursorPageResponse getAllRefundsByCursor(String cursor, Integer limit);
 }

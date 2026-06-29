@@ -1,5 +1,7 @@
 package x10.Clothing.api.service.refundService;
 
+import x10.Clothing.api.service.refundService.getRefundUc.RefundCursorPageResponse;
+
 import java.util.List;
 
 public interface ICoreRefundService {
@@ -9,6 +11,8 @@ public interface ICoreRefundService {
     List<RefundResponse> getMyRefunds(String userId);
 
     List<RefundResponse> getAllRefunds();
+
+    RefundCursorPageResponse getAllRefundsByCursor(String cursor, Integer limit);
 
     RefundResponse approveRefund(String refundId, RefundDecisionRequest request);
 

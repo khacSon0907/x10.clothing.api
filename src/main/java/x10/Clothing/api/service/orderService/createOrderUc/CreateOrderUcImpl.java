@@ -13,6 +13,7 @@ import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.common.domain.enums.OrderStatus;
 import x10.Clothing.api.common.domain.enums.PaymentMethod;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
+import x10.Clothing.api.service.orderService.AdminOrderSocketService;
 import x10.Clothing.api.service.orderService.ICoreShippingRuleService;
 import x10.Clothing.api.service.orderService.OrderResponse;
 import x10.Clothing.api.service.orderService.OrderResponseMapper;
@@ -44,6 +45,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
     private final ICorePaymentService paymentService;
     private final ICoreShippingRuleService shippingRuleService;
     private final ApplicationEventPublisher eventPublisher;
+    private final AdminOrderSocketService adminOrderSocketService;
 
     @Override
     public OrderResponse execute(CreateOrderRequest request) {
@@ -106,6 +108,8 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
             CreatePaymentLinkResponse paymentResponse = paymentService.createPaymentLink(paymentRequest);
             response.setPayment(paymentResponse);
         }
+
+        adminOrderSocketService.sendNewOrder(savedOrder);
 
         return response;
     }

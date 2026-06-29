@@ -192,6 +192,8 @@ public class SecurityConfig {
                         .authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/my-refunds")
                         .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/refunds/admin/cursor")
+                        .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/refunds")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/refunds/*/approve")

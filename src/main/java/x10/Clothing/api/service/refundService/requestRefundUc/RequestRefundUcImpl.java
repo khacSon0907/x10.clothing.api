@@ -62,7 +62,7 @@ public class RequestRefundUcImpl implements IRequestRefundUc {
         PaymentEntity payment = resolvePayment(order);
         BigDecimal refundAmount = request.getRefundAmount() == null ? order.getTotalAmount() : request.getRefundAmount();
         validateRefundAmount(refundAmount, order.getTotalAmount());
-        ExchangeSelection exchangeSelection = validateExchangeRequest(order, request);
+        RefundSelection refundSelection = resolveRefundSelection(order, request);
 
         LocalDateTime now = LocalDateTime.now();
         RefundEntity refund = RefundEntity.builder()
@@ -74,14 +74,14 @@ public class RequestRefundUcImpl implements IRequestRefundUc {
                 .refundAmount(refundAmount)
                 .reason(request.getReason())
                 .imageUrls(request.getImageUrls())
-                .productId(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getProductId())
-                .productName(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getProductName())
-                .colorId(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getColorId())
-                .colorName(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getColorName())
-                .currentSizeId(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getSizeId())
-                .currentSizeName(exchangeSelection.orderItem() == null ? null : exchangeSelection.orderItem().getSizeName())
-                .requestedSizeId(exchangeSelection.requestedSize() == null ? null : exchangeSelection.requestedSize().getId())
-                .requestedSizeName(exchangeSelection.requestedSize() == null ? null : exchangeSelection.requestedSize().getSize())
+                .productId(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getProductId())
+                .productName(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getProductName())
+                .colorId(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getColorId())
+                .colorName(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getColorName())
+                .currentSizeId(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getSizeId())
+                .currentSizeName(refundSelection.orderItem() == null ? null : refundSelection.orderItem().getSizeName())
+                .requestedSizeId(refundSelection.requestedSize() == null ? null : refundSelection.requestedSize().getId())
+                .requestedSizeName(refundSelection.requestedSize() == null ? null : refundSelection.requestedSize().getSize())
                 .bankCode(request.getBankCode())
                 .bankName(request.getBankName())
                 .accountNumber(request.getAccountNumber())
@@ -145,9 +145,9 @@ public class RequestRefundUcImpl implements IRequestRefundUc {
         }
     }
 
-    private ExchangeSelection validateExchangeRequest(OrderEntity order, RefundRequest request) {
+    private RefundSelection resolveRefundSelection(OrderEntity order, RefundRequest request) {
         if (request.getType() != RefundType.EXCHANGE_SIZE) {
-            return new ExchangeSelection(null, null);
+            return new RefundSelection(resolveOrderItem(order, request), null);
         }
 
         if (request.getProductId() == null || request.getProductId().isBlank()
@@ -156,11 +156,7 @@ public class RequestRefundUcImpl implements IRequestRefundUc {
             throw new BusinessException(RefundError.INVALID_REFUND_DATA, "Doi hang can co productId, currentSizeId va requestedSizeId");
         }
 
-        OrderItem orderItem = order.getItems().stream()
-                .filter(item -> request.getProductId().equals(item.getProductId())
-                        && request.getCurrentSizeId().equals(item.getSizeId()))
-                .findFirst()
-                .orElseThrow(() -> new BusinessException(RefundError.REFUND_NOT_ALLOWED, "Chi duoc doi size cua san pham da mua trong don hang"));
+        OrderItem orderItem = resolveOrderItem(order, request);
 
         if (request.getRequestedSizeId().equals(orderItem.getSizeId())) {
             throw new BusinessException(RefundError.INVALID_REFUND_DATA, "Size muon doi phai khac size hien tai");
@@ -179,9 +175,30 @@ public class RequestRefundUcImpl implements IRequestRefundUc {
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(RefundError.REFUND_NOT_ALLOWED, "Size muon doi khong thuoc cung san pham"));
 
-        return new ExchangeSelection(orderItem, requestedSize);
+        return new RefundSelection(orderItem, requestedSize);
     }
 
-    private record ExchangeSelection(OrderItem orderItem, SizeVariantEntity requestedSize) {
+    private OrderItem resolveOrderItem(OrderEntity order, RefundRequest request) {
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            if (request.getProductId() == null || request.getProductId().isBlank()) {
+                return null;
+            }
+            throw new BusinessException(RefundError.REFUND_NOT_ALLOWED, "Chi duoc yeu cau tra/doi san pham da mua trong don hang");
+        }
+
+        if (request.getProductId() == null || request.getProductId().isBlank()) {
+            return order.getItems().size() == 1 ? order.getItems().get(0) : null;
+        }
+
+        return order.getItems().stream()
+                .filter(item -> request.getProductId().equals(item.getProductId()))
+                .filter(item -> request.getCurrentSizeId() == null
+                        || request.getCurrentSizeId().isBlank()
+                        || request.getCurrentSizeId().equals(item.getSizeId()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(RefundError.REFUND_NOT_ALLOWED, "Chi duoc yeu cau tra/doi san pham da mua trong don hang"));
+    }
+
+    private record RefundSelection(OrderItem orderItem, SizeVariantEntity requestedSize) {
     }
 }

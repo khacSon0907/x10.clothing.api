@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,6 +19,7 @@ import x10.Clothing.api.service.refundService.ICoreRefundService;
 import x10.Clothing.api.service.refundService.RefundDecisionRequest;
 import x10.Clothing.api.service.refundService.RefundRequest;
 import x10.Clothing.api.service.refundService.RefundResponse;
+import x10.Clothing.api.service.refundService.getRefundUc.RefundCursorPageResponse;
 import x10.Clothing.api.share.response.ApiResponse;
 
 import java.util.List;
@@ -71,6 +73,25 @@ public class RefundController {
                 200,
                 "REFUND.GET_ALL_SUCCESS",
                 "Lay danh sach yeu cau hoan tien thanh cong",
+                response,
+                httpRequest.getRequestURI(),
+                null
+        );
+    }
+
+    @GetMapping("/refunds/admin/cursor")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<RefundCursorPageResponse> getAllRefundsByCursor(
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            HttpServletRequest httpRequest) {
+
+        RefundCursorPageResponse response = coreRefundService.getAllRefundsByCursor(cursor, limit);
+
+        return ApiResponse.success(
+                200,
+                "REFUND.GET_ALL_CURSOR_SUCCESS",
+                "Lay danh sach yeu cau hoan tien phan trang thanh cong",
                 response,
                 httpRequest.getRequestURI(),
                 null
