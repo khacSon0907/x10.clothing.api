@@ -89,7 +89,7 @@ public class CreateOrderUcImpl implements ICreateOrderUc {
                 .discountAmount(discountAmount)
                 .totalAmount(totalAmount)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.UNPAID)
+                .paymentStatus(PaymentStatus.PENDING)
                 .status(OrderStatus.PENDING)
                 .note(request.getNote())
                 .createdAt(now)

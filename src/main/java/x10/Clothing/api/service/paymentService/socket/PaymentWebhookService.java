@@ -7,17 +7,21 @@ import vn.payos.PayOS;
 import vn.payos.model.webhooks.Webhook;
 import vn.payos.model.webhooks.WebhookData;
 import x10.Clothing.api.Repository.IOrderRepository;
+import x10.Clothing.api.Repository.IPaymentRepository;
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.PaymentEntity;
 import x10.Clothing.api.common.domain.enums.PaymentStatus;
 import x10.Clothing.api.service.orderService.OrderInventoryService;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentWebhookService {
 
     private final IOrderRepository orderRepository;
+    private final IPaymentRepository paymentRepository;
     private final OrderInventoryService orderInventoryService;
     private final SimpMessagingTemplate messagingTemplate;
     private final PayOS payOS;
@@ -40,6 +44,25 @@ public class PaymentWebhookService {
         order.setUpdatedAt(LocalDateTime.now());
 
         orderRepository.save(order);
+
+        LocalDateTime now = LocalDateTime.now();
+        PaymentEntity payment = paymentRepository.findByProviderOrderCode(payosOrderCode)
+                .orElseGet(() -> PaymentEntity.builder()
+                        .id(UUID.randomUUID().toString())
+                        .orderId(order.getId())
+                        .orderCode(order.getOrderCode())
+                        .method(order.getPaymentMethod())
+                        .amount(order.getTotalAmount())
+                        .currency("VND")
+                        .provider("PAYOS")
+                        .providerOrderCode(payosOrderCode)
+                        .createdAt(now)
+                        .build());
+        payment.setStatus(paymentStatus);
+        payment.setFailureReason(PaymentStatus.FAILED == paymentStatus ? data.getDesc() : null);
+        payment.setPaidAt(PaymentStatus.PAID == paymentStatus ? now : payment.getPaidAt());
+        payment.setUpdatedAt(now);
+        paymentRepository.save(payment);
 
         PaymentSocketMessage message = PaymentSocketMessage.builder()
                 .orderId(order.getId())

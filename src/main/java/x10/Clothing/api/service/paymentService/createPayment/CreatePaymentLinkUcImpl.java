@@ -3,15 +3,20 @@ package x10.Clothing.api.service.paymentService.createPayment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import x10.Clothing.api.Repository.IOrderRepository;
+import x10.Clothing.api.Repository.IPaymentRepository;
 import x10.Clothing.api.common.domain.entities.order.OrderEntity;
+import x10.Clothing.api.common.domain.entities.order.PaymentEntity;
+import x10.Clothing.api.common.domain.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CreatePaymentLinkUcImpl implements ICreatePaymentLinkUc {
 
     private final IOrderRepository orderRepository;
+    private final IPaymentRepository paymentRepository;
     private final PayOSService payOSService;
 
     @Override
@@ -35,6 +40,25 @@ public class CreatePaymentLinkUcImpl implements ICreatePaymentLinkUc {
         order.setPayosOrderCode(orderCode);
         order.setUpdatedAt(LocalDateTime.now());
         orderRepository.save(order);
+
+        LocalDateTime now = LocalDateTime.now();
+        paymentRepository.findByOrderId(order.getId())
+                .orElseGet(() -> paymentRepository.save(PaymentEntity.builder()
+                        .id(UUID.randomUUID().toString())
+                        .orderId(order.getId())
+                        .orderCode(order.getOrderCode())
+                        .method(order.getPaymentMethod())
+                        .status(PaymentStatus.PENDING)
+                        .amount(order.getTotalAmount())
+                        .currency("VND")
+                        .provider("PAYOS")
+                        .providerOrderCode(orderCode)
+                        .providerPaymentLinkId(payOSResponse.getPaymentLinkId())
+                        .checkoutUrl(payOSResponse.getCheckoutUrl())
+                        .qrCode(payOSResponse.getQrCode())
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build()));
 
         return CreatePaymentLinkResponse.builder()
                 .orderId(order.getId())

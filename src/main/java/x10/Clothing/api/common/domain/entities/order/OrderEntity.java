@@ -22,7 +22,7 @@ public class OrderEntity {
     private String id;
     private String orderCode;
     private Long payosOrderCode;
-
+    private String paymentId;
     private String userId;
     private String guestId;
     private String guestEmail;

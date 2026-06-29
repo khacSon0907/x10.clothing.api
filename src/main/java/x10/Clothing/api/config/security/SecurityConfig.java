@@ -188,6 +188,18 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/revenue/**")
                         .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/refund-request")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/my-refunds")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/refunds")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/refunds/*/approve")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/refunds/*/reject")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/refunds/*/mark-refunded")
+                        .hasRole("ADMIN")
 
                         // Banners create/update/delete chỉ ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/banners")

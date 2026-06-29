@@ -1,0 +1,22 @@
+package x10.Clothing.api.Repository;
+
+import x10.Clothing.api.common.domain.entities.order.RefundEntity;
+import x10.Clothing.api.common.domain.enums.RefundStatus;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface IRefundRepository {
+
+    RefundEntity save(RefundEntity refund);
+
+    Optional<RefundEntity> findById(String id);
+
+    List<RefundEntity> findAll();
+
+    List<RefundEntity> findByUserId(String userId);
+
+    List<RefundEntity> findByOrderId(String orderId);
+
+    List<RefundEntity> findByStatus(RefundStatus status);
+}

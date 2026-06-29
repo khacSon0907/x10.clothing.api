@@ -4,9 +4,32 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum OrderStatus {
     PENDING,
+
     CONFIRMED,
-    CANCELLED,
-    RETURNED;
+
+    SHIPPING,
+
+    DELIVERED,
+
+    COMPLETED,
+
+    RETURN_REQUESTED,
+
+    RETURN_APPROVED,
+
+    RETURN_RECEIVED,
+
+    EXCHANGE_APPROVED,
+
+    EXCHANGED,
+
+    REFUND_PROCESSING,
+
+    REFUNDED,
+
+    RETURNED,
+
+    CANCELLED;
 
     @JsonCreator
     public static OrderStatus from(String value) {
