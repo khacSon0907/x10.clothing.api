@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -123,6 +124,8 @@ public class OrderController {
             @PathVariable("userId") String userId,
             HttpServletRequest httpRequest
     ) {
+        ensureCanViewOrdersForUser(userId);
+
         List<OrderResponse> response = coreOrderService.getOrdersByUserId(userId);
         return ApiResponse.success(
                 200,
@@ -243,5 +246,29 @@ public class OrderController {
         }
 
         return authentication.getPrincipal().toString();
+    }
+
+    private void ensureCanViewOrdersForUser(String userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getPrincipal() == null
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User is not authenticated"
+            );
+        }
+
+        boolean canViewAnyUser = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority) || "ROLE_STAFF".equals(authority));
+
+        if (!canViewAnyUser && !authentication.getPrincipal().toString().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "User can only view their own orders"
+            );
+        }
     }
 }

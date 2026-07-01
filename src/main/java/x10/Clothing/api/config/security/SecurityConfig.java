@@ -187,7 +187,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/orders/admin/**")
                         .hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.GET, "/api/orders/user/**")
-                        .hasAnyRole("ADMIN", "STAFF")
+                        .hasAnyRole("ADMIN", "STAFF", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/orders")
                         .hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.PUT, "/api/orders/*/confirm")

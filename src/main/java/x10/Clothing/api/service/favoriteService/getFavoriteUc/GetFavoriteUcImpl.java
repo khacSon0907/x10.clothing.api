@@ -9,6 +9,7 @@ import x10.Clothing.api.common.domain.entities.favorite.FavoriteItem;
 import x10.Clothing.api.common.domain.entities.product.ProductEntity;
 import x10.Clothing.api.common.domain.entities.product.ProductImageEntity;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class GetFavoriteUcImpl implements IGetFavoriteUc {
                                 .productId(item.getProductId())
                                 .productName(item.getProductName())
                                 .productImage(resolveFavoriteImage(item))
+                                .price(resolveFavoritePrice(item))
                                 .build())
                         .collect(Collectors.toList());
 
@@ -72,6 +74,20 @@ public class GetFavoriteUcImpl implements IGetFavoriteUc {
         return productRepository.findById(item.getProductId())
                 .map(this::resolveProductImage)
                 .orElse(null);
+    }
+
+    private BigDecimal resolveFavoritePrice(FavoriteItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        if (item.getPrice() != null && item.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            return item.getPrice();
+        }
+
+        return productRepository.findById(item.getProductId())
+                .map(ProductEntity::getPrice)
+                .orElse(item.getPrice());
     }
 
     private String resolveProductImage(ProductEntity product) {
